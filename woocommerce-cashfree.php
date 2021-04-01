@@ -16,7 +16,6 @@ if ( ! defined( 'ABSPATH' ) )
 }
 
 require_once __DIR__.'/includes/response.php';
-require_once __DIR__.'/includes/notify.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
  
 // Include our Gateway Class and register Payment Gateway with WooCommerce
