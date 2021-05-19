@@ -33,11 +33,16 @@ class Cashfree_Response
           
             if ($postArgs["txStatus"] == 'SUCCESS')
             {
-                $success = true;
-
-                $verifySignature = $this->verifySignature($postArgs);
+                if($postArgs["orderAmount"] == $order->get_total())
+                {
+                    $success = $this->verifySignature($postArgs);
+                }
+                else
+                {
+                    $postArgs["txMsg"] = "Order amount is mismatched";
+                }
             }
-
+            
             if($success == true){
                 
                 $this->updateOrder($order, $success, $postArgs["txMsg"], $postArgs['referenceId']);
