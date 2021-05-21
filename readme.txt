@@ -3,7 +3,7 @@ Contributors: sharroh
 Tags: India, Payment gateway, Ecommerce, WooCommerce, Cashfree, Payments
 Requires at least: 5.0
 Tested up to: 5.7.0
-Stable tag: 4.2.0
+Stable tag: 4.2.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -58,6 +58,11 @@ Cashfree Payment Gateway charges start at 1.75% per transaction. Cashfree does n
 6. WooCommerce-Success 
 
 == Changelog ==
+
+= 4.2.3 =
+* Updated WooCommerce version
+* Tested upto wc 5.0.0
+* Bug fixes for duplicate order and redirection issue.
 
 = 1.3 =
 * Updated WooCommerce version
