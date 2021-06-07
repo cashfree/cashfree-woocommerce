@@ -21,7 +21,7 @@ class Cashfree_Response
 		list($orderId) = explode('_', $orderId);
 		$order = new WC_Order($orderId);
 
-        if ($order->needs_payment() === false)
+        if ($order->has_status( array( 'processing', 'completed' ) ) )
         {
             $this->redirectUser($order);
         }
@@ -42,7 +42,7 @@ class Cashfree_Response
                     $postArgs["txMsg"] = "Order amount is mismatched";
                 }
             }
-            
+
             if($success == true){
                 
                 $this->updateOrder($order, $success, $postArgs["txMsg"], $postArgs['referenceId']);
@@ -109,7 +109,7 @@ class Cashfree_Response
     {
         global $woocommerce;
 
-        if (($success === true) and ($order->needs_payment() === true))
+        if ($success === true)
         {
             $order->payment_complete();
             $order->set_transaction_id($referenceId);
