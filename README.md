@@ -24,3 +24,6 @@ You can install the plugin through the Wordpress plugins screen directly. Altern
 1. Upload the plugin files to the `/wp-content/plugins/cashfree` directory
 1. Activate the plugin through the 'Plugins' screen in WordPress
 1. Use the Settings -> Cashfree screen to configure the plugin
+
+### Discord
+Join our [discord server](https://discord.gg/Ne8rNACyZn) to instantly get connected
