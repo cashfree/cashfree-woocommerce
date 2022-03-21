@@ -60,7 +60,7 @@ class WC_Cashfree_Request_Checkout {
 			"order_currency"    => $order->get_currency(),
 			"order_note"        => "WooCommerce",
 			"order_meta"        => array(
-				"notify_url" => "self::get_url( 'notify', $order->get_order_key(), $gateway->id )"
+				"notify_url" => self::get_url( 'notify', $order->get_order_key(), $gateway->id )
 			)
 		);
 
