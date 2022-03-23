@@ -26,28 +26,13 @@ class WC_Cashfree_Request_Checkout {
 		if ( is_user_logged_in() ) {
 			$customer 		= new WC_Customer( $order->get_user_id() );
 			$customerEmail 	= $customer->get_email();
-			$customerId 	= $customer->get_id();
+			$customerId 	= (string) $customer->get_id();
 		} else {
 			$customerEmail = $order->get_billing_email();
 			$customerId = "woocommerceCustomer";
 		}
 
-		if(!empty($order->get_billing_phone())) {
-			$phone = $order->get_billing_phone();
-		} else {
-			if ( $order->get_shipping_method() ) {
-				$address = $order->get_address( 'shipping' );
-				$phone = empty( $address['phone'] ) ? '' : $address['phone'];
-			} else {
-				$phone = '';
-			}
-		}
-
-		if(!empty($phone)) {
-			$customerPhone = preg_replace("/[^0-9]/", '', $phone);
-		} else {
-			$customerPhone = '9999999999';
-		}
+		$customerPhone = self::get_phone_number($order);
 
 		$data = array(
 			"customer_details"      => array(
@@ -60,7 +45,7 @@ class WC_Cashfree_Request_Checkout {
 			"order_currency"    => $order->get_currency(),
 			"order_note"        => "WooCommerce",
 			"order_meta"        => array(
-				"notify_url" => self::get_url( 'notify', $order->get_order_key(), $gateway->id )
+			"notify_url" 		=> self::get_url( 'notify', $order->get_order_key(), $gateway->id )
 			)
 		);
 
@@ -84,5 +69,39 @@ class WC_Cashfree_Request_Checkout {
 			),
 			WC()->api_request_url( $gateway_id )
 		);
+	}
+
+	/**
+	 * Get valid phone number
+	 *
+	 * @param object $order     array.
+	 *
+	 * @return string
+	 */
+	public static function get_phone_number( $order ) {
+		if(!empty($order->get_billing_phone())) {
+			$phone = $order->get_billing_phone();
+		} else {
+			if ( $order->get_shipping_method() ) {
+				$address = $order->get_address( 'shipping' );
+				$phone = empty( $address['phone'] ) ? '' : $address['phone'];
+			} else {
+				$phone = '';
+			}
+		}
+
+		if(!empty($phone)) {
+			if (strpos($phone, '+') === 0) {
+				$customerPhone = '+'.preg_replace("/[^0-9]/", '', $phone);
+			} elseif(strpos($phone, '0') === 0) {
+				$customerPhone = substr(preg_replace("/[^0-9]/", '', $phone), 1);
+			} else {
+				$customerPhone = preg_replace("/[^0-9]/", '', $phone);
+			}
+		} else {
+			$customerPhone = '9999999999';
+		}
+
+		return $customerPhone;
 	}
 }
