@@ -53,5 +53,20 @@ return array(
 		'label'       	=> __( 'Enable logging', 'cashfree' ),
 		'default'     	=> 'no',
 		'description' 	=> __( 'Log Cashfree events, such as HTTP requests.', 'cashfree' ),
-	)
+	),
+	'order_button_text' => array(
+		'title'       => __('Order button text', 'cashfree'),
+		'type'        =>  'text',
+		'default'     => __('Pay Now', 'cashfree'),
+		'description' => __('This controls the title which the user sees during checkout.', 'cashfree'),
+		'desc_tip'    => true
+	),
+	'in_context'		=> array(
+		'title'       	=> __( 'In Context', 'cashfree' ),
+		'type'        	=> 'checkbox',
+		'label'       	=> __( 'Enable In Context', 'cashfree' ),
+		'default'     	=> 'yes',
+		'description' 	=> __( 'Cashfree In Context can be used to accept payments without redirection', 'cashfree' ),
+		'desc_tip'    => true
+	),
 );

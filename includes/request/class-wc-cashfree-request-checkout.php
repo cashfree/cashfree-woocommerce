@@ -19,7 +19,6 @@ class WC_Cashfree_Request_Checkout {
 	 * @return array
 	 */
 	public static function build( $order_id, $gateway ) {
-		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-item.php';
 
 		$order = wc_get_order( $order_id );
 
@@ -45,7 +44,8 @@ class WC_Cashfree_Request_Checkout {
 			"order_currency"    => $order->get_currency(),
 			"order_note"        => "WooCommerce",
 			"order_meta"        => array(
-			"notify_url" 		=> self::get_url( 'notify', $order->get_order_key(), $gateway->id )
+			"notify_url" 		=> self::get_url( 'notify', $order->get_order_key(), $gateway->id ),
+			"return_url"		=> self::get_return_url('capture', $order->get_order_key(), $gateway->id)
 			)
 		);
 
@@ -66,6 +66,25 @@ class WC_Cashfree_Request_Checkout {
 			array(
 				'action'    => $action,
 				'order_key' => $order_key,
+			),
+			WC()->api_request_url( $gateway_id )
+		);
+	}
+
+	/**
+	 * Create Api URL.
+	 *
+	 * @param string $gateway_id Cashfree gateway id.
+	 *
+	 * @return string
+	 */
+	public static function get_return_url( $action, $order_key, $gateway_id ) {
+		return add_query_arg(
+			array(
+				'order_id'    => '{order_id}',
+				'order_token' => '{order_token}',
+				'order_key' => $order_key,
+				'action' 	  => $action
 			),
 			WC()->api_request_url( $gateway_id )
 		);

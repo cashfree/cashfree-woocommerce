@@ -30,7 +30,7 @@ class WC_Cashfree_Api {
 			if ( has_action( $tag ) ) {
 				do_action(
 					$tag,
-					wc_clean( wp_unslash( $_POST ) ),
+					wc_clean( wp_unslash( $_REQUEST ) ),
 					wc_clean( wp_unslash( $_GET['order_key'] ) )
 				);
 				exit;
