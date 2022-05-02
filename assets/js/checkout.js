@@ -64,7 +64,7 @@ jQuery( document ).ready(
 			document.body.appendChild(pippin_form);
 			pippin_form.submit();
 		}
-		
+		Pippin.setOrderMetaPlatform("wc");
 		Pippin(env, wc_cashfree_checkout_params.token, successCallback, failureCallback, dismissCallback);
 	}
 );

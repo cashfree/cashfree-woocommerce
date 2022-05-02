@@ -27,11 +27,13 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		$this->init_form_fields();
 		$this->init_settings();
 
-		$this->title       = $this->get_option( 'title' );
-		$this->description = $this->get_option( 'description' );
-		$this->sandbox     = 'yes' === $this->get_option( 'sandbox', 'yes' );
-		$this->debug       = 'yes' === $this->get_option( 'debug', 'no' );
-		$this->token_param = $this->id . '-token';
+		$this->title       			= $this->get_option( 'title' );
+		$this->description 			= $this->get_option( 'description' );
+		$this->order_button_text	= $this->get_option( 'order_button_text' );
+		$this->sandbox     			= 'yes' === $this->get_option( 'sandbox', 'yes' );
+		$this->in_context     		= 'yes' === $this->get_option( 'in_context', 'yes' );
+		$this->debug       			= 'yes' === $this->get_option( 'debug', 'no' );
+		$this->token_param 			= $this->id . '-token';
 
 		require_once WC_CASHFREE_DIR_PATH . 'includes/class-wc-cashfree-api.php';
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-checkout.php';
@@ -113,39 +115,51 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			wc_add_notice( $e->getMessage(), 'error' );
 			return array( 'result' => 'failure' );
 		}
+		if($this->in_context === true) {
+			$order        = wc_get_order( $order_id );
+			$pay_url      = $order->get_checkout_payment_url( true );
+			$redirect_url = add_query_arg( $this->token_param, $response['order_token'], $pay_url );
 
-		$order        = wc_get_order( $order_id );
-		$pay_url      = $order->get_checkout_payment_url( true );
-		$redirect_url = add_query_arg( $this->token_param, $response['order_token'], $pay_url );
-
-		return array(
-			'result'   => 'success',
-			'redirect' => $redirect_url,
-		);
+			return array(
+				'result'   => 'success',
+				'redirect' => $redirect_url,
+			);
+		} else {
+			return array('result' => 'success', 'redirect' => $response['payment_link']);
+		}
 	}
 
 	/**
 	 * Capture an approved order.
 	 *
-	 * @param array $post_data post data.
+	 * @param array $data post data.
 	 * @param string $order_key      Order key.
 	 */
-	public function capture( $post_data, $order_key ) {
-		$order_id = $post_data['orderId'];
+	public function capture( $data, $order_key ) {
+		if($this->in_context === true) {
+			$order_id 	= $data['orderId'];
+		} else {
+			$order_id 	= $data['order_id'];
+		}
+		
 		$order = $this->get_order( $order_id, $order_key );
 
 		if ( $order && $order->needs_payment() || $order->has_status('processing')) {
 			try {
-				$this->adapter->capture( $post_data );
-				$order->payment_complete( $post_data['transaction_id'] );
-			} catch ( Exception $e ) {
-				if($post_data['transaction_status'] === 'CANCELLED') {
+				$response = $this->adapter->capture( $data );
+				if ($response->payment_status === 'SUCCESS') {
+					$order->payment_complete( $response->cf_payment_id );
+					wp_safe_redirect( $this->get_return_url( $order ) );
+					exit;
+				} elseif($response->payment_status === 'CANCELLED') {
 					$order_status = 'cancelled';
-				} elseif($post_data['transaction_status'] === 'FAILED') {
+				} elseif($response->payment_status === 'FAILED') {
 					$order_status = 'failed';
 				} else {
 					$order_status = 'pending';
 				}
+			} catch ( Exception $e ) {
+				$order_status = 'pending';
 				$order->update_status( $order_status );
 				$order->add_order_note(
 					sprintf( /* translators: %1$s: transaction id %2$s: error code */
@@ -156,8 +170,6 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 					)
 				);
 			}
-			wp_safe_redirect( $this->get_return_url( $order ) );
-			exit;
 		}
 		wc_add_notice( __( 'Cashfree capture error.', 'cashfree' ), 'error' );
 		wp_safe_redirect( wc_get_checkout_url() );
@@ -181,6 +193,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			} else {
 				$order_status = 'pending';
 			}
+			
 			$order->update_status( $order_status );
 			$order->add_order_note(
 				sprintf( /* translators: %1$s: transaction id %2$s: error code */
@@ -191,7 +204,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 				)
 			);
 		}
-		wc_add_notice( __( $post_data['transaction_msg'], 'cashfree' ) );
+		wc_add_notice( __( $post_data['transaction_msg'], 'cashfree' ), 'error');
 		wp_safe_redirect( wc_get_checkout_url() );
 	}
 
@@ -248,14 +261,14 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		$refund_id      = $order_id . '-' . uniqid();
 
 		try {
-			$refund = $this->adapter->refund( $transaction_id, $refund_id, $amount, $reason );
-			$order->add_order_note( __( 'Refund Id: ' . $refund->{'refundId'}, 'woocommerce' ) );
+			$refund = $this->adapter->refund( $order_id, $refund_id, $amount, $reason );
+			$order->add_order_note( __( 'Refund Id: ' . $refund->cf_refund_id, 'woocommerce' ) );
               /**
                * @var $jsonResponse->refundId -- Provides the Cashfree Refund ID
                * @var $order_id -> Refunded Order ID
                * @var $refund -> WooCommerce Refund Instance.
                */
-              do_action( 'woo_cashfree_refund_success', $refund->{'refundId'}, $order_id, $refund );
+              do_action( 'woo_cashfree_refund_success', $refund->cf_refund_id, $order_id, $refund );
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'error',

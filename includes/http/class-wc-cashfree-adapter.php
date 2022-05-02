@@ -38,45 +38,31 @@ class WC_Cashfree_Adapter {
 	 */
 	public function checkout( $order_id ) {
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-checkout.php';
+
 		$requestParams = WC_Cashfree_Request_Checkout::build( $order_id, $this->gateway );
 		
 		$getEnvValue = $this->getCurlValue();
 
 		$curlPostfield = json_encode($requestParams);
 
-		$curl = curl_init();
-
-		curl_setopt_array($curl, [
-			CURLOPT_URL             => $getEnvValue['curlUrl'],
-			CURLOPT_RETURNTRANSFER  => true,
-			CURLOPT_ENCODING        => "",
-			CURLOPT_MAXREDIRS       => 10,
-			CURLOPT_TIMEOUT         => 30,
-			CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-			CURLOPT_CUSTOMREQUEST   => "POST",
-			CURLOPT_POSTFIELDS      => $curlPostfield,
-			CURLOPT_HTTPHEADER      => [
-				"Accept:            application/json",
-				"Content-Type:      application/json",
-				"x-api-version:     2021-05-21",
-				"x-client-id:       ".$this->gateway->settings['app_id'],
-				"x-client-secret:   ".$this->gateway->settings['secret_key'],
-				"x-idempotency-key: ".$requestParams['order_id']
-			],
-		]);
-
-		$result = curl_exec($curl);
-		curl_close($curl);
-		$jsonData = json_decode($result);
-		if (null !== $jsonData && !empty($jsonData->order_token))
-		{
+		try{
+			$result = $this->curlPostRequest($getEnvValue['curlUrl'], $curlPostfield, $requestParams['order_id']);
 			$response = [
-				'order_token'       => $jsonData->order_token,
+				'order_token'       => $result->order_token,
 				'environment'       => $getEnvValue['environment'],
+				'payment_link'      => $result->payment_link,
 			];
+
+			//Order Cart save	
+			try {
+				$this->cashfreeCheckoutCartSave( $order_id );				
+			} catch ( Exception $exception ) {
+				WC_Cashfree::log( 'CartDetails : ' . $exception->getMessage(), 'critical' );
+			}
 			return $response;
-		} else {
-			throw new Exception($jsonData->message);
+
+		} catch(Exception $e) {
+			throw new Exception($e->getMessage());
 		}
 	}
 
@@ -91,41 +77,27 @@ class WC_Cashfree_Adapter {
 	 * @throws ApiException If response status code is invalid.
 	 */
 	public function capture( $post_data ) {
-
-		if($post_data['order_status'] === 'PAID') {
-			$getEnvValue = $this->getCurlValue();
-			$getOrderUrl = $getEnvValue['curlUrl']."/".$post_data['orderId'];
-
-			$curl = curl_init();
-
-			curl_setopt_array($curl, [
-				CURLOPT_URL 			=> $getOrderUrl,
-				CURLOPT_RETURNTRANSFER 	=> true,
-				CURLOPT_ENCODING 		=> "",
-				CURLOPT_MAXREDIRS 		=> 10,
-				CURLOPT_TIMEOUT 		=> 30,
-				CURLOPT_HTTP_VERSION 	=> CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST 	=> "GET",
-				CURLOPT_HTTPHEADER 		=> [
-					"Accept: 			application/json",
-					"Content-Type: 		application/json",
-					"x-api-version: 	2021-05-21",
-					"x-client-id: 		".$this->gateway->settings['app_id'],
-					"x-client-secret: 	".$this->gateway->settings['secret_key']
-				],
-			]);
-
-			$response = curl_exec($curl);
-			curl_close($curl);
-			$jsonData = json_decode($response);
-			if (null !== $jsonData && !empty($jsonData->order_status) && $jsonData->order_status === 'PAID')
-			{
-				return $jsonData;
+		$getEnvValue = $this->getCurlValue();
+		if($this->gateway->settings['in_context'] === "yes") {
+			if($post_data['order_status'] === 'PAID') {
+				$getOrderUrl = $getEnvValue['curlUrl']."/".$post_data['orderId']."/payments";
+				try{
+					$result = $this->curlGetRequest($getOrderUrl);
+					return $result;
+				} catch(Exception $e) {
+					throw new Exception($e->getMessage());
+				}
 			} else {
-				throw new Exception("Signature mismatch.");
+				throw new Exception($post_data['transaction_msg']);
 			}
 		} else {
-			throw new Exception($post_data['transaction_msg']);
+			$getOrderUrl = $getEnvValue['curlUrl']."/".$post_data['order_id']."/payments";
+			try{
+				$result = $this->curlGetRequest($getOrderUrl);
+				return $result;
+			} catch(Exception $e) {
+				throw new Exception($e->getMessage());
+			}
 		}
 	}
 
@@ -156,34 +128,62 @@ class WC_Cashfree_Adapter {
 	 * @throws Exception If payment method is not properly configured.
 	 * @throws ApiException If response status code is invalid.
 	 */
-	public function refund( $transaction_id, $refund_id, $amount, $description ) {
-		$cf_refund_request                  = array();
-		$cf_refund_request["appId"]         = $this->gateway->settings['app_id'];
-		$cf_refund_request["secretKey"]     = $this->gateway->settings['secret_key'];
-		$cf_refund_request["referenceId"]   = $transaction_id;  
-		$cf_refund_request["refundAmount"]  = $amount;
-		$cf_refund_request["refundNote"]    = $description;
-		$timeout                            = 30;                
-		if ( $this->gateway->settings['sandbox'] !== 'yes' )
-		{
-			$apiEndpoint = "https://api.cashfree.com";
-		} 
-		else {
-		  $apiEndpoint = "https://test.cashfree.com";
+	public function refund( $order_id, $refund_id, $amount, $description ) {
+		$getEnvValue = $this->getCurlValue();
+		$cartData = array(
+			'refund_amount'	=> $amount,
+			'refund_id'		=> $refund_id,
+			'refund_note' 	=> $description,
+		);
+		$curlPostfield = json_encode($cartData);             
+	
+		$refundUrl = $getEnvValue['curlUrl']."/".$order_id."/refunds";
+		
+		try{
+			$result = $this->curlPostRequest($refundUrl, $curlPostfield);
+			return $result;
+		} catch(Exception $e) {
+			throw new Exception($e->getMessage());
 		}
-		$refundUrl = $apiEndpoint."/api/v1/order/refund";
-		$postBody = array("body" => $cf_refund_request, "timeout" => $timeout);
-		$cf_refund_result = wp_remote_retrieve_body(wp_remote_post(esc_url($refundUrl),$postBody));
-		$refund = json_decode($cf_refund_result);
 
-		if ($refund->{'status'} == "OK" && isset($refund->{'refundId'})) 
-		{ 
-			return $refund;
-		} 
-		else 
-		{
-			throw new Exception($refund->{'reason'});
+	}
+
+
+	private function cashfreeCheckoutCartSave($order_id) {
+		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-items.php';
+		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-billing.php';
+		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-shipping.php';
+
+		$order = new WC_Order( $order_id );
+
+		$billing_address=$order->get_address( 'billing' ) ;
+		if ( !empty($billing_address) ) {
+			$postCode = (!empty($billing_address['postcode'])) ? $billing_address['postcode'] : "";
 		}
+		$cartData = array(
+			'shipping_address'	=> WC_Cashfree_Request_Shipping::build( $order_id ),
+			'billing_address'	=> WC_Cashfree_Request_Billing::build( $order_id ),
+			'pincode'      		=> $postCode,
+			'customer_note'    	=> $order->get_currency(),
+			'items'           	=> array_map(
+				function( $item ) use ( $order ) {
+					return WC_Cashfree_Request_Item::build( $order, $item );
+				},
+				array_values( $order->get_items() )
+			),
+		);
+
+		$getEnvValue = $this->getCurlValue();
+		$addCartCurlUrl = $getEnvValue['curlUrl']."/".$order_id."/cart";
+
+		$curlPostfield = json_encode($cartData);
+
+		try{
+			$this->curlPostRequest($addCartCurlUrl, $curlPostfield);
+		} catch(Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+
 	}
 
 	public function getCurlValue() {
@@ -199,5 +199,58 @@ class WC_Cashfree_Adapter {
 			"curlUrl" => $curlURL,
 			"environment" => $environment
 		);
+	}
+
+	private function curlPostRequest($curlUrl, $data, $idemKey = "") {
+		$headers = array(
+			'Accept' 			=>	'application/json',
+			'Content-Type' 		=>	'application/json',
+			'x-api-version' 	=> 	'2021-05-21',
+			'x-client-id' 		=> 	$this->gateway->settings['app_id'],
+			'x-client-secret'	=>  $this->gateway->settings['secret_key'],
+		);
+		
+		if(!empty($idemKey)) {
+			$headers['x-idempotency-key'] = $idemKey;
+		}
+		
+		$args = array(
+			'body'        => $data,
+			'timeout'     => '30',
+			'headers'     => $headers,
+		);
+
+		$response = wp_remote_post( $curlUrl, $args );
+		$http_code = wp_remote_retrieve_response_code( $response );
+		$body     = json_decode(wp_remote_retrieve_body( $response ));
+
+		if($http_code == 200) {
+			return $body;
+		} else {
+			throw new Exception($body->message);
+		}
+	}
+
+	private function curlGetRequest($curlUrl) {
+
+		$args = array(
+			'timeout'     => '30',
+			'headers'     => array(
+				'x-api-version' 	=> 	'2021-05-21',
+				'x-client-id' 		=> 	$this->gateway->settings['app_id'],
+				'x-client-secret'	=>  $this->gateway->settings['secret_key'],
+			),
+		);
+
+		$response = wp_remote_get( $curlUrl, $args );
+		$http_code = wp_remote_retrieve_response_code( $response );
+		$body     = json_decode(wp_remote_retrieve_body( $response ));
+
+		if($http_code == 200) {
+			return $body[0];	
+		} else {
+			throw new Exception($body[0]->payment_message);
+		}
+		
 	}
 }
