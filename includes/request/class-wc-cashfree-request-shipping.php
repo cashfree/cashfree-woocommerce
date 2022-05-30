@@ -23,16 +23,16 @@ class WC_Cashfree_Request_Shipping {
 		$shippingAddress = "";
 		if ( !empty($shipping_address) ) {
 			if(!empty($shipping_address['address_1'])) {
-				$shippingAddress." ".$shipping_address['address_1'];
+				$shippingAddress = $shippingAddress." ".$shipping_address['address_1'];
 			}
 			if(!empty($shipping_address['address_2'])) {
-				$shippingAddress." ".$shipping_address['address_2'];
+				$shippingAddress = $shippingAddress." ".$shipping_address['address_2'];
 			}
 			if(!empty($shipping_address['city'])) {
-				$shippingAddress." ".$shipping_address['city'];
+				$shippingAddress = $shippingAddress." ".$shipping_address['city'];
 			}
 			if(!empty($shipping_address['state'])) {
-				$shippingAddress." ".$shipping_address['state'];
+				$shippingAddress = $shippingAddress." ".$shipping_address['state'];
 			}
 			return substr($shippingAddress,0,254);
 		}
