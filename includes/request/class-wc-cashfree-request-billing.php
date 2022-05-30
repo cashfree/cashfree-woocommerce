@@ -24,16 +24,16 @@ class WC_Cashfree_Request_Billing {
 		if ( is_user_logged_in() ) {
 			$customer 		= new WC_Customer( $order->get_user_id() );
 			if(!empty($customer->get_billing_address_1())) {
-				$billingAddress." ".$customer->get_billing_address_1();
+				$billingAddress = $billingAddress." ".$customer->get_billing_address_1();
 			}
 			if(!empty($customer->get_billing_address_2())) {
-				$billingAddress." ".$customer->get_billing_address_2();
+				$billingAddress = $billingAddress." ".$customer->get_billing_address_2();
 			}
 			if(!empty($customer->get_billing_city())) {
-				$billingAddress." ".$customer->get_billing_city();
+				$billingAddress = $billingAddress." ".$customer->get_billing_city();
 			}
 			if(!empty($customer->get_billing_state())) {
-				$billingAddress." ".$customer->get_billing_state();
+				$billingAddress = $billingAddress." ".$customer->get_billing_state();
 			}
 			return substr($billingAddress,0,254);
 		} elseif(!empty($billing_address)) {
