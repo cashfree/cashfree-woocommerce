@@ -15,11 +15,13 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 	 *
 	 * @var WC_Cashfree_Adapter
 	 */
+
 	protected $adapter;
 
 	/**
 	 * Constructor.
 	 */
+
 	public function __construct() {
 		$this->has_fields = true;
 		$this->supports   = array( 'products', 'refunds' );
@@ -99,6 +101,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 	 */
 	public function payment_fields() {
 		wc_cashfree_script( 'wc-cashfree-js' );
+		wc_get_cashfree_template( 'payment-fields.php', array( 'gateway' => $this ) );
 	}
 
 	/**
@@ -115,6 +118,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			wc_add_notice( $e->getMessage(), 'error' );
 			return array( 'result' => 'failure' );
 		}
+
 		if($this->in_context === true) {
 			$order        = wc_get_order( $order_id );
 			$pay_url      = $order->get_checkout_payment_url( true );
@@ -133,7 +137,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 	 * Capture an approved order.
 	 *
 	 * @param array $data post data.
-	 * @param string $order_key      Order key.
+	 * @param string $order_key Order key.
 	 */
 	public function capture( $data, $order_key ) {
 		if($this->in_context === true) {
@@ -143,12 +147,17 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		}
 		
 		$order = $this->get_order( $order_id, $order_key );
-
 		if ( $order && $order->needs_payment() || $order->has_status('processing')) {
 			try {
 				$response = $this->adapter->capture( $data );
 				if ($response->payment_status === 'SUCCESS') {
 					$order->payment_complete( $response->cf_payment_id );
+					$order->add_order_note(
+						sprintf(
+							__( 'Cashfree payment successful <br/>Transaction Id: %1$s.', 'cashfree' ),
+							$response->cf_payment_id
+						)
+					);
 					wp_safe_redirect( $this->get_return_url( $order ) );
 					exit;
 				} elseif($response->payment_status === 'CANCELLED') {
@@ -163,7 +172,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 				$order->update_status( $order_status );
 				$order->add_order_note(
 					sprintf( /* translators: %1$s: transaction id %2$s: error code */
-						__( 'Cashfree capture %1$s. ID: %2$s. Code: %3$s.', 'cashfree' ),
+						__( 'Cashfree capture %1$s. ID: %2$s. Error: %3$s.', 'cashfree' ),
 						$order_status,
 						$order->get_id(),
 						$e->getMessage()
@@ -173,22 +182,23 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		}
 		wc_add_notice( __( 'Cashfree capture error.', 'cashfree' ), 'error' );
 		wp_safe_redirect( wc_get_checkout_url() );
+		exit;
 	}
 
 	/**
 	 * Cancel a checkout.
 	 *
-	 * @param array $post_data post data.
-	 * @param string $order_key      Order key.
+	 * @param array $data post data.
+	 * @param string $order_key   Order key.
 	 */
-	public function cancel( $post_data, $order_key ) {
-		$order_id = $post_data['orderId'];
+	public function cancel( $data, $order_key ) {
+		$order_id = $data['orderId'];
 		$order = $this->get_order( $order_id, $order_key );
 
 		if ( $order && $order->needs_payment() ) {
-			if($post_data['transaction_status'] === 'CANCELLED') {
+			if($data['transaction_status'] === 'CANCELLED') {
 				$order_status = 'cancelled';
-			} elseif($post_data['transaction_status'] === 'FAILED') {
+			} elseif($data['transaction_status'] === 'FAILED') {
 				$order_status = 'failed';
 			} else {
 				$order_status = 'pending';
@@ -200,12 +210,13 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 					__( 'Cashfree capture %1$s. ID: %2$s. Code: %3$s.', 'cashfree' ),
 					$order_status,
 					$order->get_id(),
-					$post_data['transaction_msg']
+					$data['transaction_msg']
 				)
 			);
 		}
-		wc_add_notice( __( $post_data['transaction_msg'], 'cashfree' ), 'error');
+		wc_add_notice( __( $data['transaction_msg'], 'cashfree' ), 'error');
 		wp_safe_redirect( wc_get_checkout_url() );
+		exit;
 	}
 
 	/**
@@ -216,25 +227,32 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 	 */
 	public function dismiss( $post_data, $order_key ) {
 		wp_safe_redirect( wc_get_checkout_url() );
+		exit;
 	}
 
 	/**
 	 * Webhook a checkout.
 	 *
-	 * @param array $post_data post data.
+	 * @param array $data post data.
 	 * @param string $order_key Order key.
 	 */
-	public function notify( $post_data, $order_key ) {
-		if($post_data['txStatus'] === 'SUCCESS') {
-			$order_id = $post_data['orderId'];
+	public function notify( $data, $order_key ) {
+		if($data['txStatus'] === 'SUCCESS') {
+			$order_id = $data['orderId'];
 			$order = $this->get_order( $order_id, $order_key );
 
 			if ( $order && $order->needs_payment() ) {
 				try {
-					$post_data['order_status'] = 'PAID';
-					$post_data['transaction_msg'] = $post_data['txMsg'];
-					$this->adapter->notify( $post_data );
-					$order->payment_complete( $post_data['referenceId'] );
+					$data['order_status'] = 'PAID';
+					$data['transaction_msg'] = $data['txMsg'];
+					$this->adapter->notify( $data );
+					$order->payment_complete( $data['referenceId'] );
+					$order->add_order_note(
+						sprintf(
+							__( 'Webhook - Cashfree payment successful <br/>Transaction Id: %1$s.', 'cashfree' ),
+							$data['referenceId']
+						)
+					);
 				} catch ( Exception $e ) {
 					WC_Cashfree::log( 'notify : ' . $e->getMessage(), 'critical' );
 				}
@@ -298,7 +316,8 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 					'environment' 	=> $this->get_environment(),
 					'capture_url' 	=> WC_Cashfree_Request_Checkout::get_url( 'capture', wc_clean( wp_unslash( $_GET[ 'key' ] ) ), $this->id ),
 					'cancel_url' 	=> WC_Cashfree_Request_Checkout::get_url( 'cancel', wc_clean( wp_unslash( $_GET[ 'key' ] ) ), $this->id ), 
-					'dismiss_url' 	=> WC_Cashfree_Request_Checkout::get_url( 'dismiss', wc_clean( wp_unslash( $_GET[ 'key' ] ) ), $this->id ) )
+					'dismiss_url' 	=> WC_Cashfree_Request_Checkout::get_url( 'dismiss', wc_clean( wp_unslash( $_GET[ 'key' ] ) ), $this->id ),
+					'woo_version'   => WC()->version )
 			);
 		}
 	}
@@ -306,8 +325,8 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 	/**
 	 * Get order instance.
 	 *
-	 * @param string $transaction_id Transaction id.
-	 * @param string $order_key      Order key.
+	 * @param string $order_id Order id.
+	 * @param string $order_key Order key.
 	 *
 	 * @return bool|WC_Order|WC_Order_Refund
 	 */

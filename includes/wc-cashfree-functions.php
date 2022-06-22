@@ -5,6 +5,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+function wc_get_cashfree_template( $template_name, $args = array(), $template_path = '' ) {
+	wc_get_template( $template_name, $args, $template_path, WC_CASHFREE_DIR_PATH . 'templates/' );
+}
+
 /**
  * Register the script and inject parameters.
  *

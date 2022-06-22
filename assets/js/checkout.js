@@ -3,16 +3,19 @@ jQuery( document ).ready(
 	function( $ ) {
 		let dismissflag = true;
 		//Set env
-		const  env  =  wc_cashfree_checkout_params.environment; //or production
+		const  env = wc_cashfree_checkout_params.environment; //or production
+
 		//Create Success Callback
 		const  successCallback  =  function (data) {
 			dismissflag = false;
 			woocommerceFormSubmit(data, wc_cashfree_checkout_params.capture_url);
 		}
+
 		//Create Failure Callback
 		const  failureCallback  =  function (data) {
 			woocommerceFormSubmit(data, wc_cashfree_checkout_params.cancel_url);
 		}
+
 		//Create Dismiss Callback
 		const  dismissCallback  =  function () {
 			if(dismissflag) {
@@ -64,7 +67,7 @@ jQuery( document ).ready(
 			document.body.appendChild(pippin_form);
 			pippin_form.submit();
 		}
-		Pippin.setOrderMetaPlatform("wc");
+		Pippin.setOrderMetaPlatform("wc-" + wc_cashfree_checkout_params.woo_version);
 		Pippin(env, wc_cashfree_checkout_params.token, successCallback, failureCallback, dismissCallback);
 	}
 );
