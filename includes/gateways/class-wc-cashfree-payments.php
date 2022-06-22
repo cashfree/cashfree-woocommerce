@@ -15,11 +15,8 @@ final class WC_Cashfree_Payments extends WC_Cashfree_Gateway {
 	 */
 	public function __construct() {
 		$this->id                 = WC_Cashfree::PAYMENT_GATEWAY_ID;
-		$this->method_title       = __( 'Cashfree Payments', 'cashfree' );
-		$this->method_description = __( 'Accept payments using credit and debit cards.', 'cashfree' );
-		$this->order_button_text  = __( 'Pay Now', 'cashfree' );
 		$this->icon               = "https://cashfreelogo.cashfree.com/wix/cflogo.svg";
-
+		$this->method_description = __( 'Pay securely via Card/Net Banking/Wallet via Cashfree.', 'cashfree' );
 		parent::__construct();
 	}
 

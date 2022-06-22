@@ -45,15 +45,14 @@ class WC_Cashfree_Request_Checkout {
 			"order_note"        => "WooCommerce",
 			"order_meta"        => array(
 			"notify_url" 		=> self::get_url( 'notify', $order->get_order_key(), $gateway->id ),
-			"return_url"		=> self::get_return_url('capture', $order->get_order_key(), $gateway->id)
+			"return_url"		=> self::get_return_url('capture', $order->get_order_key(), $gateway)
 			)
 		);
-
 		return $data;
 	}
 
 	/**
-	 * Create Api URL.
+	 * Create Api callback URLs.
 	 *
 	 * @param string $action     Action to perform.
 	 * @param string $order_key  Order key.
@@ -72,13 +71,13 @@ class WC_Cashfree_Request_Checkout {
 	}
 
 	/**
-	 * Create Api URL.
+	 * Create Api return URL.
 	 *
-	 * @param string $gateway_id Cashfree gateway id.
+	 * @param string $gateway Cashfree gateway.
 	 *
 	 * @return string
 	 */
-	public static function get_return_url( $action, $order_key, $gateway_id ) {
+	public static function get_return_url( $action, $order_key, $gateway ) {
 		return add_query_arg(
 			array(
 				'order_id'    => '{order_id}',
@@ -86,14 +85,40 @@ class WC_Cashfree_Request_Checkout {
 				'order_key' => $order_key,
 				'action' 	  => $action
 			),
-			WC()->api_request_url( $gateway_id )
+			WC()->api_request_url( $gateway->id )
 		);
+	}
+
+	/**
+	 * Create Api webhooks URL.
+	 *
+	 * @param string $gateway Cashfree gateway.
+	 *
+	 * @return string
+	 */
+	public static function get_notify_url( $action, $order_key, $gateway ) {
+		$wc_notify_url =  add_query_arg(
+			array(
+				'order_key' => $order_key,
+				'action' 	  => $action
+			),
+			WC()->api_request_url( $gateway->id )
+		);
+
+		$redirectData = base64_encode("notify_url=".$wc_notify_url."&platform=woo");
+		if ( $gateway->settings['sandbox'] != 'yes' ) {
+			$prefixUrl = 'https://payments.cashfree.com';
+		} else {
+			$prefixUrl = 'https://payments-test.cashfree.com';
+		}
+		$query_params = $prefixUrl."/pgbillpayuiapi/integrations/webhook?redirectData=".$redirectData;
+		return $query_params;
 	}
 
 	/**
 	 * Get valid phone number
 	 *
-	 * @param object $order     array.
+	 * @param object $order  array.
 	 *
 	 * @return string
 	 */

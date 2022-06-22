@@ -19,12 +19,11 @@ return array(
 		'default'     	=> __( 'Cashfree Payments', 'cashfree' ),
 		'desc_tip'    	=> true,
 	),
-	'description' 		=> array(
-		'title'       	=> __( 'Description', 'cashfree' ),
-		'type'        	=> 'text',
-		'desc_tip'    	=> true,
-		'description' 	=> __( 'This controls the description which the user sees during checkout.', 'cashfree' ),
-		'default'     	=> __( 'Pay securely via Card/Net Banking/Wallet via Cashfree.', 'cashfree' ),
+	'description' => array(
+		'title'       => __( 'Description', 'cashfree' ),
+		'type'        => 'textarea',
+		'description' => __( 'Payment method description that the customer will see on your checkout.', 'cashfree' ),
+		'default'     => __( 'Pay securely via Card/Net Banking/Wallet via Cashfree.', 'cashfree' ),
 	),
 	'app_id'        	=> array(
 		'title'       	=> __( 'App ID', 'cashfree' ),

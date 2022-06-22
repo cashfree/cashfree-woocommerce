@@ -53,7 +53,7 @@ class WC_Cashfree_Adapter {
 				'payment_link'      => $result->payment_link,
 			];
 
-			//Order Cart save	
+			//Save cart details	
 			try {
 				$this->cashfreeCheckoutCartSave( $order_id );				
 			} catch ( Exception $exception ) {
@@ -186,6 +186,7 @@ class WC_Cashfree_Adapter {
 
 	}
 
+	// Get config values for gateway environment
 	public function getCurlValue() {
 		if ( $this->gateway->settings['sandbox'] != 'yes' ) {
 			$curlURL = 'https://api.cashfree.com/pg/orders';
@@ -201,6 +202,7 @@ class WC_Cashfree_Adapter {
 		);
 	}
 
+	// Post request for gateway
 	private function curlPostRequest($curlUrl, $data, $idemKey = "") {
 		$headers = array(
 			'Accept' 			=>	'application/json',
@@ -231,6 +233,7 @@ class WC_Cashfree_Adapter {
 		}
 	}
 
+	// Get request for gateway
 	private function curlGetRequest($curlUrl) {
 
 		$args = array(
