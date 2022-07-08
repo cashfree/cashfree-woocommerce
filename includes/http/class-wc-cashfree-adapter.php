@@ -53,7 +53,7 @@ class WC_Cashfree_Adapter {
 				'payment_link'      => $result->payment_link,
 			];
 
-			//Save cart details	
+			//Order Cart save	
 			try {
 				$this->cashfreeCheckoutCartSave( $order_id );				
 			} catch ( Exception $exception ) {
@@ -160,9 +160,11 @@ class WC_Cashfree_Adapter {
 		if ( !empty($billing_address) ) {
 			$postCode = (!empty($billing_address['postcode'])) ? $billing_address['postcode'] : "";
 		}
+		$billing_address = WC_Cashfree_Request_Billing::build( $order_id );
+		$shipping_address = WC_Cashfree_Request_Shipping::build( $order_id );
 		$cartData = array(
-			'shipping_address'	=> WC_Cashfree_Request_Shipping::build( $order_id ),
-			'billing_address'	=> WC_Cashfree_Request_Billing::build( $order_id ),
+			'shipping_address'	=> $shipping_address['shippingAddress'],
+			'billing_address'	=> $billing_address['billingAddress'],
 			'pincode'      		=> $postCode,
 			'customer_note'    	=> $order->get_currency(),
 			'items'           	=> array_map(
@@ -170,8 +172,16 @@ class WC_Cashfree_Adapter {
 					return WC_Cashfree_Request_Item::build( $order, $item );
 				},
 				array_values( $order->get_items() )
-			),
+			)
+
 		);
+
+		if (!empty($billing_address['data'])) {
+			$cartData['customer_billing_address'] = $billing_address['data'];
+		}
+		if (!empty($shipping_address['data'])) {
+			$cartData['customer_shipping_address'] = $shipping_address['data'];
+		}
 
 		$getEnvValue = $this->getCurlValue();
 		$addCartCurlUrl = $getEnvValue['curlUrl']."/".$order_id."/cart";

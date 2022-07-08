@@ -67,7 +67,7 @@ jQuery( document ).ready(
 			document.body.appendChild(pippin_form);
 			pippin_form.submit();
 		}
-		Pippin.setOrderMetaPlatform("wc-" + wc_cashfree_checkout_params.woo_version);
+		Pippin.setOrderMetaPlatform("wc" + wc_cashfree_checkout_params.woo_version + "-" +  wc_cashfree_checkout_params.cf_version);
 		Pippin(env, wc_cashfree_checkout_params.token, successCallback, failureCallback, dismissCallback);
 	}
 );
