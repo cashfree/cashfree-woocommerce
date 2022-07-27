@@ -246,6 +246,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			if ( $order && $order->needs_payment() ) {
 				try {
 					$post_data['order_status'] = 'PAID';
+					$post_data['order_id'] = $order_id;
 					$post_data['transaction_msg'] = $post_data['txMsg'];
 					$this->adapter->notify( $post_data );
 					$order->payment_complete( $post_data['referenceId'] );
