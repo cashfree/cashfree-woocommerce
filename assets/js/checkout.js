@@ -8,12 +8,22 @@ jQuery( document ).ready(
 		//Create Success Callback
 		const  successCallback  =  function (data) {
 			dismissflag = false;
-			woocommerceFormSubmit(data, wc_cashfree_checkout_params.capture_url);
+			var transactionId = data.transaction.transactionId;
+			var transactionStatus = data.transaction.txStatus;
+			woocommerceFormSubmit(data, transactionId, transactionStatus, wc_cashfree_checkout_params.capture_url);
 		}
 
 		//Create Failure Callback
 		const  failureCallback  =  function (data) {
-			woocommerceFormSubmit(data, wc_cashfree_checkout_params.cancel_url);
+			dismissflag = false;
+			var transactionId = "";
+			var transactionStatus = "ERROR";
+			if(data.transaction !== null && data.order.status !== "ERROR") {
+				transactionId = data.transaction.transactionId;
+				transactionStatus = data.transaction.txStatus;
+			}
+
+			woocommerceFormSubmit(data, transactionId, transactionStatus, wc_cashfree_checkout_params.cancel_url);
 		}
 
 		//Create Dismiss Callback
@@ -29,7 +39,7 @@ jQuery( document ).ready(
 		}
 		
 		//Submit callback form
-		const  woocommerceFormSubmit  =  function (data, url) {
+		const  woocommerceFormSubmit  =  function (data, transactionId, transactionStatus, url) {
 			pippin_form=document.createElement('FORM');
 			pippin_form.name='cashfreeForm';
 			pippin_form.method='POST';
@@ -44,7 +54,7 @@ jQuery( document ).ready(
 			pippin_tb=document.createElement('INPUT');
 			pippin_tb.type='HIDDEN';
 			pippin_tb.name='transaction_status';
-			pippin_tb.value=data.transaction.txStatus;
+			pippin_tb.value=transactionStatus;
 			pippin_form.appendChild(pippin_tb);
 
 			pippin_tb=document.createElement('INPUT');
@@ -56,13 +66,13 @@ jQuery( document ).ready(
 			pippin_tb=document.createElement('INPUT');
 			pippin_tb.type='HIDDEN';
 			pippin_tb.name='transaction_id';
-			pippin_tb.value=data.transaction.transactionId;
+			pippin_tb.value=transactionId;
 			pippin_form.appendChild(pippin_tb);
 
 			pippin_tb=document.createElement('INPUT');
 			pippin_tb.type='HIDDEN';
 			pippin_tb.name='transaction_msg';
-			pippin_tb.value=data.transaction.txMsg;
+			pippin_tb.value=data.order.message;
 			pippin_form.appendChild(pippin_tb);
 			document.body.appendChild(pippin_form);
 			pippin_form.submit();
