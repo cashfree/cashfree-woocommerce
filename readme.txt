@@ -35,7 +35,7 @@ The manual installation method involves downloading our plugin and uploading it 
 
 = 4.3.6 =
 * Bugfix for hdfc pay later response while failure
-* Add customer name for payment detail for merchant dasboard
+* Add customer name for payment detail for merchant dashboard
 
 = 4.3.5 =
 * Bugfix for webhook failed
