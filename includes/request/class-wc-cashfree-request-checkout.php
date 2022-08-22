@@ -19,6 +19,7 @@ class WC_Cashfree_Request_Checkout {
 	 * @return array
 	 */
 	public static function build( $order_id, $gateway ) {
+		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-billing.php';
 
 		$order = wc_get_order( $order_id );
 
@@ -32,12 +33,19 @@ class WC_Cashfree_Request_Checkout {
 		}
 
 		$customerPhone = self::get_phone_number($order);
+		$billing_address = WC_Cashfree_Request_Billing::build( $order_id );
+		$customerName = "";
+
+		if(!empty($billing_address) == true) {
+			$customerName = $billing_address['data']['full_name'];
+		}
 
 		$data = array(
 			"customer_details"      => array(
 				"customer_id"       => $customerId,
 				"customer_email"    => $customerEmail,
-				"customer_phone"    => $customerPhone
+				"customer_phone"    => $customerPhone,
+				"customer_name"		=> $customerName
 			),
 			"order_id"          => (string) $order_id,
 			"order_amount"      => $order->get_total(),
