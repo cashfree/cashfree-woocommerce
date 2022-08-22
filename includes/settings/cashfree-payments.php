@@ -43,7 +43,7 @@ return array(
 		'title'       	=> __( 'Cashfree sandbox', 'cashfree' ),
 		'type'        	=> 'checkbox',
 		'label'       	=> __( 'Enable Cashfree sandbox', 'cashfree' ),
-		'default'     	=> 'yes',
+		'default'     	=> 'no',
 		'description' 	=> __( 'Cashfree sandbox can be used to test payments.', 'cashfree' ),
 	),
 	'debug'				=> array(
