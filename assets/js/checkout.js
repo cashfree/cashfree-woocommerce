@@ -23,6 +23,10 @@ jQuery( document ).ready(
 				transactionStatus = data.transaction.txStatus;
 			}
 
+			if(data.order.status == "ERROR") {
+				data.order.message = data.order.errorText
+			}
+
 			woocommerceFormSubmit(data, transactionId, transactionStatus, wc_cashfree_checkout_params.cancel_url);
 		}
 
