@@ -3,8 +3,8 @@ Contributors: devcashfree
 Requires at least: 4.4
 Tested up to: 6.0
 Requires PHP: 5.6
-Stable tag: 4.3.6
-Version: 4.3.6
+Stable tag: 4.3.8
+Version: 4.3.8
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -32,6 +32,12 @@ In the search field type "Cashfree" and click Search Plugins. Once you’ve foun
 The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation).
 
 == Changelog ==
+
+= 4.3.8 =
+* Bugfix for error message in case of paylater payment method
+
+= 4.3.7 =
+* Update plugin description and add support link.
 
 = 4.3.6 =
 * Bugfix for hdfc pay later response while failure
