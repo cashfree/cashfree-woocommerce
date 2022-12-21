@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Cashfree
+ * Plugin Name: Cashfree Test
  * Version: 4.3.8
  * Plugin URI: https://github.com/cashfree/cashfree-woocommerce
  * Description: Payment gateway plugin by Cashfree Payments for Woocommerce sites.
@@ -21,6 +21,9 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+// for offers
+define ('WPCO_URL', trailingslashit(plugins_url('/',__FILE__)));
 
 /**
  * Cashfree main class.
@@ -67,8 +70,46 @@ class WC_Cashfree {
 
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( __CLASS__, 'plugin_action_links' ) );
 		add_filter( 'woocommerce_payment_gateways', array( __CLASS__, 'load_gateways' ) );
+		add_filter( 'woocommerce_before_add_to_cart_form' , array( $this, 'wp_cashfree_offers' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
+	}
+
+	public function wp_cashfree_offers() {
+		if ( $this->settings['enabledOffers'] === 'yes') {
+			// External Scripts
+			wp_register_style('Font_Awesome','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+			wp_enqueue_style('Font_Awesome');
+
+			wp_register_style("Font",'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+			wp_enqueue_style('Font');
+
+			wp_register_style("Jquery",'https://cdn.jsdelivr.net/npm/tw-elements/dist/css/index.min.css');
+			wp_enqueue_style('Jquery');
+
+			wp_register_script('Js','https://cdn.tailwindcss.com',null, null, true );
+			wp_enqueue_script('Js');
+
+			wp_register_script('Tw','https://cdn.jsdelivr.net/npm/tw-elements/dist/js/index.min.js',null, null, true );
+			wp_enqueue_script('Tw');
+
+			wp_register_script('Tw1','https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css',null, null, true );
+			wp_enqueue_script('Tw1');
+
+
+		wp_enqueue_script('woocommerce-react-script', WPCO_URL . 'dist/bundle.js', ['jquery','wp-element'], wp_rand(), true);
+		wp_enqueue_script('woocommerce-react-script1', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
+	
+		wp_register_style( 'woocommerce-react-css', WPCO_URL . 'dist/style.css', array(), '20120208', 'all' );
+			
+		wp_enqueue_style( 'woocommerce-react-css' );
+	
+		global $product;
+		$price = $product->get_price();
+
+	
+		echo'<div id="cashfree-offer-widget" data-amount='.$price.' data-appId='.$this->settings['app_id'].' data-isOffers='.$this->settings['offers'].' data-isPayLater='.$this->settings['payLater'].' data-isEmi='.$this->settings['emi'].'></div>';
+		}
 	}
 
 	/**
