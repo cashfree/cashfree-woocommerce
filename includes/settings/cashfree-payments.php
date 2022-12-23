@@ -76,21 +76,21 @@ return array(
 		'default' 		=> 'no',
 	),
 	'offers'   			=> array(
-		'title'   		=> __( 'Offers Enable/Disable', 'cashfree' ),
+		'title'   		=> __( 'Enable/Disable Offers', 'cashfree' ),
 		'type'    		=> 'checkbox',
-		'label'   		=> __( 'Enable Offers', 'cashfree' ),
+		'label'   		=> __( 'Enable/Disable Offers on widget', 'cashfree' ),
 		'default' 		=> 'yes',
 	),	
 	'payLater'   		=> array(
-		'title'   		=> __( 'Paylater Enable/Disable', 'cashfree' ),
+		'title'   		=> __( 'Enable/Disable Paylater', 'cashfree' ),
 		'type'    		=> 'checkbox',
-		'label'   		=> __( 'Enable Paylater', 'cashfree' ),
+		'label'   		=> __( 'Enable/Disable Paylater on widget', 'cashfree' ),
 		'default' 		=> 'yes',
 	),
 	'emi'   			=> array(
-		'title'   		=> __( 'EMI Enable/Disable', 'cashfree' ),
+		'title'   		=> __( 'Enable/Disable EMI', 'cashfree' ),
 		'type'    		=> 'checkbox',
-		'label'   		=> __( 'Enable EMI', 'cashfree' ),
+		'label'   		=> __( 'Enable/Disable EMI on widget', 'cashfree' ),
 		'default' 		=> 'yes',
 	),
 );
