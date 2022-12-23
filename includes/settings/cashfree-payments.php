@@ -13,30 +13,6 @@ return array(
 		'default' 		=> 'yes',
 		
 	),
-	'enabledOffers'   	=> array(
-		'title'   		=> __( 'Widget Enable/Disable', 'cashfree' ),
-		'type'    		=> 'checkbox',
-		'label'   		=> __( 'Widget Enable of Cashfree Payments', 'cashfree' ),
-		'default' 		=> 'no',
-	),
-	'offers'   			=> array(
-		'title'   		=> __( 'Offers Enable/Disable', 'cashfree' ),
-		'type'    		=> 'checkbox',
-		'label'   		=> __( 'Offers Enable of Cashfree Payments', 'cashfree' ),
-		'default' 		=> 'yes',
-	),	
-	'payLater'   		=> array(
-		'title'   		=> __( 'Paylater Enable/Disable', 'cashfree' ),
-		'type'    		=> 'checkbox',
-		'label'   		=> __( 'Paylater Enable of Cashfree Payments', 'cashfree' ),
-		'default' 		=> 'yes',
-	),
-	'emi'   			=> array(
-		'title'   		=> __( 'EMI Enable/Disable', 'cashfree' ),
-		'type'    		=> 'checkbox',
-		'label'   		=> __( 'EMI Enable of Cashfree Payments', 'cashfree' ),
-		'default' 		=> 'yes',
-	),	
 	'title'                  => array(
 		'title'  		=> __( 'Title', 'cashfree' ),
 		'type'        	=> 'text',
@@ -92,5 +68,29 @@ return array(
 		'default'     	=> 'yes',
 		'description' 	=> __( 'Cashfree In Context can be used to accept payments without redirection', 'cashfree' ),
 		'desc_tip'    => true
+	),
+	'enabledOffers'   	=> array(
+		'title'   		=> __( 'Widget Enable/Disable', 'cashfree' ),
+		'type'    		=> 'checkbox',
+		'label'   		=> __( 'Widget Enable of Cashfree Payments', 'cashfree' ),
+		'default' 		=> 'no',
+	),
+	'offers'   			=> array(
+		'title'   		=> __( 'Offers Enable/Disable', 'cashfree' ),
+		'type'    		=> 'checkbox',
+		'label'   		=> __( 'Enable Offers', 'cashfree' ),
+		'default' 		=> 'yes',
+	),	
+	'payLater'   		=> array(
+		'title'   		=> __( 'Paylater Enable/Disable', 'cashfree' ),
+		'type'    		=> 'checkbox',
+		'label'   		=> __( 'Enable Paylater', 'cashfree' ),
+		'default' 		=> 'yes',
+	),
+	'emi'   			=> array(
+		'title'   		=> __( 'EMI Enable/Disable', 'cashfree' ),
+		'type'    		=> 'checkbox',
+		'label'   		=> __( 'Enable EMI', 'cashfree' ),
+		'default' 		=> 'yes',
 	),
 );

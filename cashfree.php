@@ -78,37 +78,19 @@ class WC_Cashfree {
 	public function wp_cashfree_offers() {
 		if ( $this->settings['enabledOffers'] === 'yes') {
 			// External Scripts
-			wp_register_style('Font_Awesome','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-			wp_enqueue_style('Font_Awesome');
-
-			wp_register_style("Font",'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-			wp_enqueue_style('Font');
-
-			wp_register_style("Jquery",'https://cdn.jsdelivr.net/npm/tw-elements/dist/css/index.min.css');
-			wp_enqueue_style('Jquery');
-
-			wp_register_script('Js','https://cdn.tailwindcss.com',null, null, true );
-			wp_enqueue_script('Js');
-
-			wp_register_script('Tw','https://cdn.jsdelivr.net/npm/tw-elements/dist/js/index.min.js',null, null, true );
+			wp_register_script('Tw','https://sdk.cashfree.com/js/widget/index.js',null, null, true );
 			wp_enqueue_script('Tw');
 
-			wp_register_script('Tw1','https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css',null, null, true );
-			wp_enqueue_script('Tw1');
+			wp_enqueue_script('woocommerce-react-script1', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
+		
+			wp_register_style( 'woocommerce-react-css', WPCO_URL . 'dist/style.css', array(), '20120208', 'all' );
+				
+			wp_enqueue_style( 'woocommerce-react-css' );
+		
+			global $product;
+			$price = $product->get_price();
 
-
-		wp_enqueue_script('woocommerce-react-script', WPCO_URL . 'dist/bundle.js', ['jquery','wp-element'], wp_rand(), true);
-		wp_enqueue_script('woocommerce-react-script1', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
-	
-		wp_register_style( 'woocommerce-react-css', WPCO_URL . 'dist/style.css', array(), '20120208', 'all' );
-			
-		wp_enqueue_style( 'woocommerce-react-css' );
-	
-		global $product;
-		$price = $product->get_price();
-
-	
-		echo'<div id="cashfree-offer-widget" data-amount='.$price.' data-appId='.$this->settings['app_id'].' data-isOffers='.$this->settings['offers'].' data-isPayLater='.$this->settings['payLater'].' data-isEmi='.$this->settings['emi'].'></div>';
+			echo'<div id="cashfree-offer-widget" data-amount='.$price.' data-appId='.$this->settings['app_id'].' data-isOffers='.$this->settings['offers'].' data-isPayLater='.$this->settings['payLater'].' data-isEmi='.$this->settings['emi'].'></div>';
 		}
 	}
 
