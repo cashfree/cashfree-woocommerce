@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Cashfree Test
+ * Plugin Name: Cashfree
  * Version: 4.3.8
  * Plugin URI: https://github.com/cashfree/cashfree-woocommerce
  * Description: Payment gateway plugin by Cashfree Payments for Woocommerce sites.
@@ -22,7 +22,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// for offers
+// to read main.js file
 define ('WPCO_URL', trailingslashit(plugins_url('/',__FILE__)));
 
 /**
@@ -78,14 +78,15 @@ class WC_Cashfree {
 	public function wp_cashfree_offers() {
 		if ( $this->settings['enabledOffers'] === 'yes') {
 			// External Scripts
-			wp_register_script('Tw','https://sdk.cashfree.com/js/widget/index.js',null, null, true );
-			wp_enqueue_script('Tw');
-
-			wp_enqueue_script('woocommerce-react-script1', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
-		
-			wp_register_style( 'woocommerce-react-css', WPCO_URL . 'dist/style.css', array(), '20120208', 'all' );
-				
-			wp_enqueue_style( 'woocommerce-react-css' );
+			wp_register_script('woocommerce-js','https://sdk.cashfree.com/js/widget/index.js',null, null, true );
+			wp_enqueue_script('woocommerce-js');
+			
+			wp_enqueue_script('woocommerce-main-js', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
+			
+			wp_register_style( 'woocommerce-css', 'https://sdk.cashfree.com/js/widget/style.css', array(), '20120208', 'all' );
+			wp_enqueue_style( 'woocommerce-css' );
+			
+			add_filter( 'woocommerce_enqueue_styles', '__return_false' );
 		
 			global $product;
 			$price = $product->get_price();
