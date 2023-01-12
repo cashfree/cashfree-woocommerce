@@ -76,7 +76,7 @@ class WC_Cashfree {
 	}
 
 	public function wp_cashfree_offers() {
-		if ( $this->settings['enabledOffers'] === 'yes') {
+		if ( $this->settings['enabledOffers'] === 'yes' && $this->settings['sandbox'] === 'no') {
 			// External Scripts
 			wp_register_script('woocommerce-js','https://sdk.cashfree.com/js/widget/index.js',null, null, true );
 			wp_enqueue_script('woocommerce-js');
