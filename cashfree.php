@@ -81,7 +81,7 @@ class WC_Cashfree {
 			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/index.js', null, null, true );
 			wp_enqueue_script('cf-woocommerce-js');
 
-			wp_enqueue_script('woocommerce-main-js', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
+			wp_enqueue_script('cf-woocommerce-main-js', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
 			
 			wp_register_style( 'cf-woocommerce-css', 'https://sdk.cashfree.com/js/widget/style.css', array(), '20120208', 'all' );
 			wp_enqueue_style( 'cf-woocommerce-css' );
