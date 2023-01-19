@@ -22,6 +22,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// to read main.js file
+define ('WPCO_URL', trailingslashit(plugins_url('/',__FILE__)));
+
 /**
  * Cashfree main class.
  */
@@ -67,8 +70,30 @@ class WC_Cashfree {
 
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( __CLASS__, 'plugin_action_links' ) );
 		add_filter( 'woocommerce_payment_gateways', array( __CLASS__, 'load_gateways' ) );
+		add_filter( 'woocommerce_before_add_to_cart_form' , array( $this, 'wp_cashfree_offers' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
+	}
+
+	public function wp_cashfree_offers() {
+		if ( $this->settings['enabledOffers'] === 'yes' && $this->settings['sandbox'] === 'no') {
+			// External Scripts
+			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/index.js', null, null, true );
+			wp_enqueue_script('cf-woocommerce-js');
+
+			wp_enqueue_script('cf-woocommerce-main-js', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
+			
+			wp_register_style( 'cf-woocommerce-css', 'https://sdk.cashfree.com/js/widget/style.css', array(), '20120208', 'all' );
+			wp_enqueue_style( 'cf-woocommerce-css' );
+			
+			add_filter( 'woocommerce_enqueue_styles', '__return_false' );
+		
+			global $product;
+			$price = $product->get_price();
+
+			echo'<div id="cashfree-offer-widget" data-amount='.$price.' data-appId='.$this->settings['app_id'].' data-isOffers='.$this->settings['offers'].' data-isPayLater='.$this->settings['payLater'].' data-isEmi='.$this->settings['emi'].'></div>';
+			
+		}
 	}
 
 	/**

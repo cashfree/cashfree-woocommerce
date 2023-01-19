@@ -11,6 +11,7 @@ return array(
 		'type'    		=> 'checkbox',
 		'label'   		=> __( 'Enable Cashfree Payments', 'cashfree' ),
 		'default' 		=> 'yes',
+		
 	),
 	'title'                  => array(
 		'title'  		=> __( 'Title', 'cashfree' ),
@@ -67,5 +68,29 @@ return array(
 		'default'     	=> 'yes',
 		'description' 	=> __( 'Cashfree In Context can be used to accept payments without redirection', 'cashfree' ),
 		'desc_tip'    => true
+	),
+	'enabledOffers'   	=> array(
+		'title'   		=> __( 'Widget Enable/Disable', 'cashfree' ),
+		'type'    		=> 'checkbox',
+		'label'   		=> __( 'Widget Enable of Cashfree Payments', 'cashfree' ),
+		'default' 		=> 'no',
+	),
+	'offers'   			=> array(
+		'title'   		=> __( 'Enable/Disable Offers', 'cashfree' ),
+		'type'    		=> 'checkbox',
+		'label'   		=> __( 'Enable/Disable Offers on widget', 'cashfree' ),
+		'default' 		=> 'no',
+	),	
+	'payLater'   		=> array(
+		'title'   		=> __( 'Enable/Disable Paylater', 'cashfree' ),
+		'type'    		=> 'checkbox',
+		'label'   		=> __( 'Enable/Disable Paylater on widget', 'cashfree' ),
+		'default' 		=> 'no',
+	),
+	'emi'   			=> array(
+		'title'   		=> __( 'Enable/Disable EMI', 'cashfree' ),
+		'type'    		=> 'checkbox',
+		'label'   		=> __( 'Enable/Disable EMI on widget', 'cashfree' ),
+		'default' 		=> 'no',
 	),
 );
