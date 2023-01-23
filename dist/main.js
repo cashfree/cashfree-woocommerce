@@ -1,7 +1,5 @@
 window.addEventListener("load", function () {
-  const widgetConfig = {
-    clientID: "1848d0ce8441fb8ffa258bc98481",
-  };
+  const widgetConfig = {};
 
   // To initiate Widget
   const cashfree = CF_Widget(widgetConfig); // <merchantId>
