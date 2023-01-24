@@ -1,10 +1,9 @@
-const merchantConfig = {
-  id: "cashfree-offer-widget", // id on which widget will load
-  token: "abc",
-};
+window.addEventListener("load", function () {
+  const widgetConfig = {};
 
-// To initiate Widget
-const cashfree = CF_Offers(); // <merchantId>
+  // To initiate Widget
+  const cashfree = CF_Widget(widgetConfig); // <merchantId>
 
-// To call offersWidget by passing Merchant's Config
-cashfree.offersWidget(merchantConfig);
+  // To call offersWidget by passing Merchant's Config
+  cashfree.load();
+});

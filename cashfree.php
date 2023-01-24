@@ -78,7 +78,7 @@ class WC_Cashfree {
 	public function wp_cashfree_offers() {
 		if ( $this->settings['enabledOffers'] === 'yes' && $this->settings['sandbox'] === 'no') {
 			// External Scripts
-			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/index.js', null, null, true );
+			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/1.0.0/cashfree-widget.prod.js', null, null, true );
 			wp_enqueue_script('cf-woocommerce-js');
 
 			wp_enqueue_script('cf-woocommerce-main-js', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
@@ -86,12 +86,12 @@ class WC_Cashfree {
 			wp_register_style( 'cf-woocommerce-css', 'https://sdk.cashfree.com/js/widget/style.css', array(), '20120208', 'all' );
 			wp_enqueue_style( 'cf-woocommerce-css' );
 			
-			add_filter( 'woocommerce_enqueue_styles', '__return_false' );
+			add_filter( 'cf-woocommerce_enqueue_styles', '__return_false' );
 		
 			global $product;
 			$price = $product->get_price();
 
-			echo'<div id="cashfree-offer-widget" data-amount='.$price.' data-appId='.$this->settings['app_id'].' data-isOffers='.$this->settings['offers'].' data-isPayLater='.$this->settings['payLater'].' data-isEmi='.$this->settings['emi'].'></div>';
+			echo'<div id="cashfree-widget" data-amount='.$price.' data-appId='.$this->settings['app_id'].' data-isOffers='.$this->settings['offers'].' data-isPayLater='.$this->settings['payLater'].' data-isEmi='.$this->settings['emi'].'></div>';
 			
 		}
 	}
