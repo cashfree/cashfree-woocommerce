@@ -9,7 +9,7 @@ This is the official Cashfree Payment Gateway plugin for WooCommerce. By integra
 1. Wordpress v5.0 and later
 2. Woocommerce v3.0 and later
 3. PHP v7.0 and later
-4. php-curl
+4. php-curl 
 
 ### Steps to integrate Cashfree with your WooCommerce store:
 
