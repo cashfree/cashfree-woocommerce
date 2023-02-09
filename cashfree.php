@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Cashfree
- * Version: 4.3.9
+ * Version: 4.4.0
  * Plugin URI: https://github.com/cashfree/cashfree-woocommerce
  * Description: Payment gateway plugin by Cashfree Payments for Woocommerce sites.
  * Author: devcashfree
@@ -77,8 +77,11 @@ class WC_Cashfree {
 
 	public function wp_cashfree_offers() {
 		if ( $this->settings['enabledOffers'] === 'yes' && $this->settings['sandbox'] === 'no') {
+			// taking timestamp
+			$t=time();
+
 			// External Scripts
-			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/1.0.0/cashfree-widget.prod.js', null, null, true );
+			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/1.0.0/cashfree-widget.prod.js'.$t, null, null, true );
 			wp_enqueue_script('cf-woocommerce-js');
 
 			wp_enqueue_script('cf-woocommerce-main-js', WPCO_URL . 'dist/main.js', ['jquery','wp-element'], wp_rand(), true);
