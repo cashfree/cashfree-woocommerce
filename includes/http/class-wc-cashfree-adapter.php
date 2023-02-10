@@ -63,7 +63,7 @@ class WC_Cashfree_Adapter {
 				if($cfOrder == "PAID") {
 					throw new Exception("Please reach out to the support team");
 				} else {
-					if(strtotime($cfOrder->order_expiry_time) > time() && round($cfOrder->order_amount) == round($order->get_total()) ) {
+					if(strtotime($cfOrder->order_expiry_time) > time() && round($cfOrder->order_amount) == round($order->get_total()) && $cfOrder->order_currency == $order->get_currency()) {
 						$response = [
 							'order_token'       => $cfOrder->order_token,
 							'environment'       => $getEnvValue['environment'],
