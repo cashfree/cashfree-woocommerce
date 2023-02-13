@@ -80,7 +80,7 @@ class WC_Cashfree {
 			// taking timestamp
 			$t=time();
 
-			// External Scripts
+			// External Script
 			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/1.0.0/cashfree-widget.prod.js'.$t, null, null, true );
 			wp_enqueue_script('cf-woocommerce-js');
 
