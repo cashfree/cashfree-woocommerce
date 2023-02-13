@@ -39,6 +39,44 @@ class WC_Cashfree_Adapter {
 	public function checkout( $order_id ) {
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-checkout.php';
 
+		$getEnvValue = $this->getCurlValue();
+
+		$getOrderUrl = $getEnvValue['curlUrl']."/".$order_id;
+
+		$args = array(
+			'timeout'     => '30',
+			'headers'     => array(
+				'x-api-version' 	=> 	'2021-05-21',
+				'x-client-id' 		=> 	$this->gateway->settings['app_id'],
+				'x-client-secret'	=>  $this->gateway->settings['secret_key'],
+			),
+		);
+
+		
+		$response = wp_remote_get( $getOrderUrl, $args );
+
+		$http_code = wp_remote_retrieve_response_code( $response );
+		if($http_code == 200){
+			$cfOrder = json_decode(wp_remote_retrieve_body( $response ));
+			if(!empty($cfOrder)) {
+				$order = wc_get_order($order_id);
+				if($cfOrder == "PAID") {
+					throw new Exception("Please reach out to the support team");
+				} else {
+					if(strtotime($cfOrder->order_expiry_time) > time() && round($cfOrder->order_amount) == round($order->get_total()) && $cfOrder->order_currency == $order->get_currency()) {
+						$response = [
+							'order_token'       => $cfOrder->order_token,
+							'environment'       => $getEnvValue['environment'],
+							'payment_link'      => $cfOrder->payment_link,
+						];
+						return $response;
+					} else {
+						throw new Exception("Please reach out to the support team");
+					}
+				}
+			}
+		}
+
 		$requestParams = WC_Cashfree_Request_Checkout::build( $order_id, $this->gateway );
 		
 		$getEnvValue = $this->getCurlValue();
@@ -245,7 +283,6 @@ class WC_Cashfree_Adapter {
 
 	// Get request for gateway
 	private function curlGetRequest($curlUrl) {
-
 		$args = array(
 			'timeout'     => '30',
 			'headers'     => array(
@@ -256,9 +293,9 @@ class WC_Cashfree_Adapter {
 		);
 
 		$response = wp_remote_get( $curlUrl, $args );
+
 		$http_code = wp_remote_retrieve_response_code( $response );
 		$body     = json_decode(wp_remote_retrieve_body( $response ));
-
 		if($http_code == 200) {
 			return $body[0];	
 		} else {
