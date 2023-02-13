@@ -77,8 +77,11 @@ class WC_Cashfree {
 
 	public function wp_cashfree_offers() {
 		if ( $this->settings['enabledOffers'] === 'yes' && $this->settings['sandbox'] === 'no') {
-			// External Scripts
-			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/1.0.1/cashfree-widget.prod.js', null, null, true );
+			// taking timestamp
+			$t=time();
+
+			// External Script
+			wp_register_script('cf-woocommerce-js', 'https://sdk.cashfree.com/js/widget/1.0.0/cashfree-widget.prod.js'.$t, null, null, true );
 			wp_enqueue_script('cf-woocommerce-js');
 			
 			add_filter( 'cf-woocommerce_enqueue_styles', '__return_false' );
