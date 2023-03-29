@@ -23,39 +23,36 @@ class WC_Cashfree_Request_Checkout {
 
 		$order = wc_get_order( $order_id );
 
+		$customer_email = $order->get_billing_email();
+		$customer_phone = self::get_phone_number($order);
+		$billing_address = WC_Cashfree_Request_Billing::build( $order_id );
+		$customerName = $billing_address ? $billing_address['data']['full_name'] : '';
+		
 		if ( is_user_logged_in() ) {
-			$customer 		= new WC_Customer( $order->get_user_id() );
-			$customerEmail 	= $customer->get_email();
-			$customerId 	= (string) $customer->get_id();
+			$customer = new WC_Customer( $order->get_user_id() );
+			$customer_email = $customer->get_email();
+			$customerId = (string) $customer->get_id();
 		} else {
-			$customerEmail = $order->get_billing_email();
 			$customerId = "woocommerceCustomer";
 		}
 
-		$customerPhone = self::get_phone_number($order);
-		$billing_address = WC_Cashfree_Request_Billing::build( $order_id );
-		$customerName = "";
-
-		if(!empty($billing_address) == true) {
-			$customerName = $billing_address['data']['full_name'];
-		}
-
 		$data = array(
-			"customer_details"      => array(
-				"customer_id"       => $customerId,
-				"customer_email"    => $customerEmail,
-				"customer_phone"    => $customerPhone,
-				"customer_name"		=> $customerName
+			'customer_details' => array(
+				'customer_id' => $customerId,
+				'customer_email' => $customer_email,
+				'customer_phone' => $customer_phone,
+				'customer_name' => $customerName
 			),
-			"order_id"          => (string) $order_id,
-			"order_amount"      => $order->get_total(),
-			"order_currency"    => $order->get_currency(),
-			"order_note"        => "WooCommerce",
-			"order_meta"        => array(
-			"notify_url" 		=> self::get_notify_url( 'notify', $order->get_order_key(), $gateway ),
-			"return_url"		=> self::get_return_url('capture', $order->get_order_key(), $gateway)
+			'order_id' => (string) $order_id,
+			'order_amount' => $order->get_total(),
+			'order_currency' => $order->get_currency(),
+			'order_note' => 'WooCommerce',
+			'order_meta' => array(
+				'notify_url' => self::get_notify_url( 'notify', $order->get_order_key(), $gateway ),
+				'return_url' => self::get_return_url('capture', $order->get_order_key(), $gateway)
 			)
 		);
+
 		return $data;
 	}
 
@@ -71,7 +68,7 @@ class WC_Cashfree_Request_Checkout {
 	public static function get_url( $action, $order_key, $gateway_id ) {
 		return add_query_arg(
 			array(
-				'action'    => $action,
+				'action' => $action,
 				'order_key' => $order_key,
 			),
 			WC()->api_request_url( $gateway_id )
@@ -86,40 +83,41 @@ class WC_Cashfree_Request_Checkout {
 	 * @return string
 	 */
 	public static function get_return_url( $action, $order_key, $gateway ) {
-		return add_query_arg(
-			array(
-				'order_id'    => '{order_id}',
-				'order_token' => '{order_token}',
-				'order_key' => $order_key,
-				'action' 	  => $action
-			),
-			WC()->api_request_url( $gateway->id )
+		$query_args = array(
+			'order_id'    => '{order_id}',
+			'order_key' => $order_key,
+			'action'      => $action
 		);
+		$api_request_url = WC()->api_request_url( $gateway->id );
+		return add_query_arg( $query_args, $api_request_url );
 	}
 
+
 	/**
-	 * Create Api webhooks URL.
+	 * Create API webhook URL for Cashfree gateway.
 	 *
-	 * @param string $gateway Cashfree gateway.
+	 * @param string $action    The action to perform.
+	 * @param string $order_key The order key.
+	 * @param object $gateway   The Cashfree gateway object.
 	 *
-	 * @return string
+	 * @return string The webhook URL.
 	 */
 	public static function get_notify_url( $action, $order_key, $gateway ) {
-		$wc_notify_url =  add_query_arg(
+		$query_params = '';
+
+		$wc_notify_url = add_query_arg(
 			array(
 				'order_key' => $order_key,
-				'action' 	  => $action
+				'action'    => $action
 			),
 			WC()->api_request_url( $gateway->id )
 		);
+		
 
-		$redirectData = base64_encode("notify_url=".$wc_notify_url."&platform=woo");
-		if ( $gateway->settings['sandbox'] != 'yes' ) {
-			$prefixUrl = 'https://payments.cashfree.com';
-		} else {
-			$prefixUrl = 'https://payments-test.cashfree.com';
-		}
-		$query_params = $prefixUrl."/pgbillpayuiapi/integrations/webhook?redirectData=".$redirectData;
+		$redirect_data = base64_encode( "notify_url=$wc_notify_url&platform=woo" );
+		$prefix_url = $gateway->settings['sandbox'] === 'yes' ? 'https://payments-test.cashfree.com' : 'https://payments.cashfree.com';
+		$query_params = "$prefix_url/pgbillpayuiapi/integrations/webhook?redirectData=$redirect_data";
+
 		return $query_params;
 	}
 
@@ -130,28 +128,23 @@ class WC_Cashfree_Request_Checkout {
 	 *
 	 * @return string
 	 */
-	public static function get_phone_number( $order ) {
-		if(!empty($order->get_billing_phone())) {
+	public static function get_phone_number($order)
+	{
+		$phone = '';
+
+		if (!empty($order->get_billing_phone())) {
 			$phone = $order->get_billing_phone();
-		} else {
-			if ( $order->get_shipping_method() ) {
-				$address = $order->get_address( 'shipping' );
-				$phone = empty( $address['phone'] ) ? '' : $address['phone'];
-			} else {
-				$phone = '';
-			}
+		} elseif ($order->get_shipping_method()) {
+			$address = $order->get_address('shipping');
+			$phone = empty($address['phone']) ? '' : $address['phone'];
 		}
 
-		if(!empty($phone)) {
-			if (strpos($phone, '+') === 0) {
-				$customerPhone = '+'.preg_replace("/[^0-9]/", '', $phone);
-			} elseif(strpos($phone, '0') === 0) {
-				$customerPhone = substr(preg_replace("/[^0-9]/", '', $phone), 1);
-			} else {
-				$customerPhone = preg_replace("/[^0-9]/", '', $phone);
-			}
-		} else {
-			$customerPhone = '9999999999';
+		$customerPhone = !empty($phone) ? preg_replace("/[^0-9]/", '', $phone) : '9999999999';
+
+		if (strpos($phone, '+') === 0) {
+			$customerPhone = '+' . $customerPhone;
+		} elseif (strpos($phone, '0') === 0) {
+			$customerPhone = substr($customerPhone, 1);
 		}
 
 		return $customerPhone;

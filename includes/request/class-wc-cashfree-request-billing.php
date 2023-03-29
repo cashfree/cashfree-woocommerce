@@ -85,6 +85,5 @@ class WC_Cashfree_Request_Billing {
 		} else {
 			return $addressData;
 		}
-
 	}
 }
