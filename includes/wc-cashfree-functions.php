@@ -31,14 +31,14 @@ function wc_cashfree_script( $handle, $params = null ) {
  * @param array $settings Gateway settings.
  */
 function wc_cashfree_js( $settings ) {
-	wc_cashfree_script( 'wc-cashfree-js' );
-
-	wc_cashfree_script(
-		'wc-cashfree-checkout',
-		array(
-			'sandbox'    => 'yes' === $settings['sandbox'],
-			'merchantId' => $settings['app_id'],
-			'locale'     => get_locale(),
-		)
-	);
+	if ($settings["in_context"] === "yes") {
+		wc_cashfree_script( 'wc-cashfree-pippin-js' );
+	} else {
+		if($settings["sandbox"] === "no") {
+			wc_cashfree_script('wc-cashfree-prod-drop-js');
+		} else {
+			wc_cashfree_script('wc-cashfree-sandbox-drop-js');
+		}
+	}
+	wc_cashfree_script('wc-cashfree-checkout');
 }

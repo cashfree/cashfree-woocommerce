@@ -27,116 +27,112 @@ class WC_Cashfree_Adapter {
 	}
 
 	/**
-	 * Create a checkout using given parameters.
+	 * Create a checkout using the given order ID.
 	 *
-	 * @param string $order_id Order id.
+	 * @param string $order_id Order ID.
 	 *
-	 * @return array
+	 * @return array An array containing the order token and environment.
 	 *
-	 * @throws Exception If payment method is not properly configured.
-	 * @throws ApiException If response status code is invalid.
+	 * @throws Exception If an error occurs while creating the checkout.
 	 */
 	public function checkout( $order_id ) {
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-checkout.php';
 
-		$getEnvValue = $this->getCurlValue();
+		// Build the request params.
+		$request_params = WC_Cashfree_Request_Checkout::build( $order_id, $this->gateway );
 
-		$getOrderUrl = $getEnvValue['curlUrl']."/".$order_id;
+		// Get the Cashfree URL and set the order URL.
+		$env_value = $this->getCurlValue();
+		$order_url = $env_value['curlUrl'] . '/' . $order_id;
 
+		// Set the request headers.
 		$args = array(
-			'timeout'     => '30',
-			'headers'     => array(
-				'x-api-version' 	=> 	'2021-05-21',
-				'x-client-id' 		=> 	$this->gateway->settings['app_id'],
-				'x-client-secret'	=>  $this->gateway->settings['secret_key'],
+			'timeout' => 30,
+			'headers' => array(
+				'x-api-version'   => '2022-09-01',
+				'x-client-id'     => $this->gateway->settings['app_id'],
+				'x-client-secret' => $this->gateway->settings['secret_key'],
 			),
 		);
 
-		
-		$response = wp_remote_get( $getOrderUrl, $args );
-
+		// Make the request to get the order.
+		$response = wp_remote_get( $order_url, $args );
 		$http_code = wp_remote_retrieve_response_code( $response );
-		if($http_code == 200){
-			$cfOrder = json_decode(wp_remote_retrieve_body( $response ));
-			if(!empty($cfOrder)) {
-				$order = wc_get_order($order_id);
-				if($cfOrder == "PAID") {
-					throw new Exception("Please reach out to the support team");
-				} else {
-					if(strtotime($cfOrder->order_expiry_time) > time() && round($cfOrder->order_amount) == round($order->get_total()) && $cfOrder->order_currency == $order->get_currency()) {
-						$response = [
-							'order_token'       => $cfOrder->order_token,
-							'environment'       => $getEnvValue['environment'],
-							'payment_link'      => $cfOrder->payment_link,
-						];
-						return $response;
-					} else {
-						throw new Exception("Please reach out to the support team");
-					}
-				}
+
+		// Check if the request was successful.
+		if ( $http_code === 200 ) {
+			$cf_order = json_decode( wp_remote_retrieve_body( $response ) );
+
+			// Check if the order has already been paid for.
+			if ( $cf_order === 'PAID' ) {
+				throw new Exception( 'Please reach out to the support team' );
+			}
+
+			// Check if the order details are correct.
+			if (
+				strtotime( $cf_order->order_expiry_time ) > time()
+				&& round( $cf_order->order_amount ) === round( wc_get_order( $order_id )->get_total() )
+				&& $cf_order->order_currency === wc_get_order( $order_id )->get_currency()
+			) {
+				$response = array(
+					'order_token' => $cf_order->payment_session_id,
+					'environment' => $env_value['environment'],
+				);
+
+				return $response;
+			} else {
+				throw new Exception( 'Please reach out to the support team' );
 			}
 		}
 
-		$requestParams = WC_Cashfree_Request_Checkout::build( $order_id, $this->gateway );
-		
-		$getEnvValue = $this->getCurlValue();
+		// If the order is not found, create a new checkout.
+		$curl_post_field = json_encode( $request_params );
 
-		$curlPostfield = json_encode($requestParams);
+		try {
+			$result = $this->curlPostRequest( $env_value['curlUrl'], $curl_post_field, $request_params['order_id'] );
 
-		try{
-			$result = $this->curlPostRequest($getEnvValue['curlUrl'], $curlPostfield, $requestParams['order_id']);
-			$response = [
-				'order_token'       => $result->order_token,
-				'environment'       => $getEnvValue['environment'],
-				'payment_link'      => $result->payment_link,
-			];
+			$response = array(
+				'order_token' => $result->payment_session_id,
+				'environment' => $env_value['environment'],
+			);
 
-			//Order Cart save	
+			// Save the order cart.
 			try {
-				$this->cashfreeCheckoutCartSave( $order_id );				
+				$this->cashfreeCheckoutCartSave( $order_id );
 			} catch ( Exception $exception ) {
-				WC_Cashfree::log( 'CartDetails : ' . $exception->getMessage(), 'critical' );
+				WC_Cashfree::log( 'CartDetails: ' . $exception->getMessage(), 'critical' );
 			}
-			return $response;
 
-		} catch(Exception $e) {
-			throw new Exception($e->getMessage());
+			return $response;
+		} catch ( Exception $e ) {
+			throw new Exception( $e->getMessage() );
 		}
 	}
 
 	/**
 	 * Capture an order.
 	 *
-	 * @param array $post_data post data.
+	 * @param array $postData post data.
 	 *
 	 * @return array
 	 *
-	 * @throws Exception If payment method is not properly configured.
-	 * @throws ApiException If response status code is invalid.
+	 * @throws Exception If payment method is not properly configured or response status code is invalid.
 	 */
-	public function capture( $post_data ) {
-		$getEnvValue = $this->getCurlValue();
-		if($this->gateway->settings['in_context'] === "yes") {
-			if($post_data['order_status'] === 'PAID') {
-				$getOrderUrl = $getEnvValue['curlUrl']."/".$post_data['orderId']."/payments";
-				try{
-					$result = $this->curlGetRequest($getOrderUrl);
-					return $result;
-				} catch(Exception $e) {
-					throw new Exception($e->getMessage());
-				}
-			} else {
-				throw new Exception($post_data['transaction_msg']);
-			}
-		} else {
-			$getOrderUrl = $getEnvValue['curlUrl']."/".$post_data['order_id']."/payments";
-			try{
-				$result = $this->curlGetRequest($getOrderUrl);
-				return $result;
-			} catch(Exception $e) {
-				throw new Exception($e->getMessage());
-			}
+	public function capture(array $postData)
+	{
+		$curlValue = $this->getCurlValue();
+		$inContext = $this->gateway->settings['in_context'] === 'yes';
+		$orderStatus = $postData['order_status'];
+		$orderId = $postData['order_id'];
+		
+		if ($inContext && $orderStatus !== 'PAID') {
+			throw new Exception($postData['transaction_msg']);
 		}
+		
+		$orderUrl = $curlValue['curlUrl'] . '/' . $orderId . '/payments';
+		$result = $this->curlGetRequest($orderUrl);
+		
+		return $result;
 	}
 
 	/**
@@ -236,45 +232,40 @@ class WC_Cashfree_Adapter {
 
 	// Get config values for gateway environment
 	public function getCurlValue() {
-		if ( $this->gateway->settings['sandbox'] != 'yes' ) {
-			$curlURL = 'https://api.cashfree.com/pg/orders';
-			$environment = 'production';
-		} else {
-			$curlURL = 'https://sandbox.cashfree.com/pg/orders';
-			$environment = 'sandbox';
-		}
-
-		return array(
-			"curlUrl" => $curlURL,
-			"environment" => $environment
-		);
-	}
+		$isSandbox = $this->gateway->settings['sandbox'] === 'yes';
+		$baseUrl = $isSandbox ? 'https://sandbox.cashfree.com' : 'https://api.cashfree.com';
+	
+		return [
+			'curlUrl' => "{$baseUrl}/pg/orders",
+			'environment' => $isSandbox ? 'sandbox' : 'production'
+		];
+	}	
 
 	// Post request for gateway
 	private function curlPostRequest($curlUrl, $data, $idemKey = "") {
-		$headers = array(
-			'Accept' 			=>	'application/json',
-			'Content-Type' 		=>	'application/json',
-			'x-api-version' 	=> 	'2021-05-21',
-			'x-client-id' 		=> 	$this->gateway->settings['app_id'],
-			'x-client-secret'	=>  $this->gateway->settings['secret_key'],
-		);
+		$headers = [
+			'Accept' => 'application/json',
+			'Content-Type' => 'application/json',
+			'x-api-version' => '2022-09-01',
+			'x-client-id' => $this->gateway->settings['app_id'],
+			'x-client-secret' => $this->gateway->settings['secret_key']
+		];
 		
 		if(!empty($idemKey)) {
 			$headers['x-idempotency-key'] = $idemKey;
 		}
 		
-		$args = array(
+		$args = [
 			'body'        => $data,
-			'timeout'     => '30',
+			'timeout'     => 30,
 			'headers'     => $headers,
-		);
+		];
 
 		$response = wp_remote_post( $curlUrl, $args );
 		$http_code = wp_remote_retrieve_response_code( $response );
 		$body     = json_decode(wp_remote_retrieve_body( $response ));
 
-		if($http_code == 200) {
+		if($http_code === 200) {
 			return $body;
 		} else {
 			throw new Exception($body->message);
