@@ -1,10 +1,10 @@
 === Cashfree for WooCommerce ===
 Contributors: devcashfree
 Requires at least: 4.4
-Tested up to: 6.0
+Tested up to: 6.2
 Requires PHP: 5.6
-Stable tag: 4.4.3
-Version: 4.4.3
+Stable tag: 4.4.4
+Version: 4.4.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -32,6 +32,9 @@ In the search field type "Cashfree" and click Search Plugins. Once you’ve foun
 The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation).
 
 == Changelog ==
+
+= 4.4.4 =
+* Update readme for support latest wordpress version
 
 = 4.4.3 =
 * Improved performance and stability
