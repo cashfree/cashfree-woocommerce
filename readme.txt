@@ -3,8 +3,8 @@ Contributors: devcashfree
 Requires at least: 4.4
 Tested up to: 6.2
 Requires PHP: 5.6
-Stable tag: 4.4.4
-Version: 4.4.4
+Stable tag: 4.4.5
+Version: 4.4.5
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -19,7 +19,7 @@ For more information about Cashfree Payments please go to https://cashfree.com.
 
 == Installation ==
 
-Please note, this payment gateway requires WooCommerce 3.0 and above.
+Please note, this payment gateway requires WooCommerce 3.0 and above. To ensure seamless payment integration, it is necessary to comply with payment regulations by whitelisting your domain. Please click on the [link](https://docs.cashfree.com/docs/developers-whitelisting) provided to whitelist your domain.
 
 = Automatic installation =
 
@@ -32,6 +32,9 @@ In the search field type "Cashfree" and click Search Plugins. Once you’ve foun
 The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation).
 
 == Changelog ==
+
+= 4.4.5 =
+* Update readme for support whitelist domain at cashfree.
 
 = 4.4.4 =
 * Update readme for support latest wordpress version

@@ -17,6 +17,7 @@ This is the official Cashfree Payment Gateway plugin for WooCommerce. By integra
 2. Download the plugin and save the file. Now login to your Wordpress dashboard > Plugins section > click on Add new > click on Upload Plugin> select the Cashfree Plugin file and upload it > Click on Install now> Once installed click on Activate
 3. Now go to WooCommerce on the left panel > click on the toggle button to enable Cashfree. Now to complete the setup, click on Manage. 
 4. Set title as ‘Cashfree Payments’, and description as ‘Pay securely via card/netbanking/wallet via Cashfree’. Please note this will be visible to your customers at the time of checkout. Now enter your Cashfree API credentials (to get the credentials, go to Cashfree settings> credentials) and save the changes.
+5. To ensure seamless payment integration, it is necessary to comply with payment regulations by whitelisting your domain. Please click on the [link](https://docs.cashfree.com/docs/developers-whitelisting) provided to whitelist your domain.
 
 ### Installation
 
