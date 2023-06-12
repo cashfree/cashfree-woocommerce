@@ -6,6 +6,10 @@
 defined( 'ABSPATH' ) || exit;
 
 return array(
+	array(
+		'type'  => 'title',
+		'description'  => __( '*To ensure seamless payment integration, it is necessary to comply with payment regulations by whitelisting your domain. Please click on the <a href="https://docs.cashfree.com/docs/developers-whitelisting" target="_blank">link</a> provided to whitelist your domain.', 'cashfree' ),
+	),
 	'enabled'   		=> array(
 		'title'   		=> __( 'Enable/Disable', 'cashfree' ),
 		'type'    		=> 'checkbox',
