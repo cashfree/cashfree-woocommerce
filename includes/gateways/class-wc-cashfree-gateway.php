@@ -212,7 +212,11 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		}
 
 		$transaction_status = $post_data['transaction_status'];
-
+		$transaction_msg = $post_data['transaction_msg'];
+		$notApproverDomainMsg = "is not enabled or approved";
+		if (strpos($transaction_msg,$notApproverDomainMsg) !== false) {
+			$transaction_msg = home_url()." ".$notApproverDomainMsg.". Please reach out to care@cashfree.com";
+		}
 		switch ( $transaction_status ) {
 			case 'CANCELLED':
 				$order_status = 'cancelled';
@@ -234,11 +238,11 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 				__( 'Cashfree capture %1$s. ID: %2$s. Code: %3$s.', 'cashfree' ),
 				$order_status,
 				$order->get_id(),
-				$post_data['transaction_msg']
+				$transaction_msg
 			)
 		);
 
-		wc_add_notice( __( $post_data['transaction_msg'], 'cashfree' ), 'error' );
+		wc_add_notice( __( $transaction_msg, 'cashfree' ), 'error' );
 		wp_safe_redirect( wc_get_checkout_url() );
 		exit;
 	}
