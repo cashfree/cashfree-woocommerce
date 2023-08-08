@@ -18,7 +18,7 @@ class WC_Cashfree_Request_Checkout {
 	 *
 	 * @return array
 	 */
-	public static function build( $order_id, $gateway ) {
+	public static function build( $order_id, $gateway, $cf_order_id ) {
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-billing.php';
 
 		$order = wc_get_order( $order_id );
@@ -43,7 +43,7 @@ class WC_Cashfree_Request_Checkout {
 				'customer_phone' => $customer_phone,
 				'customer_name' => $customerName
 			),
-			'order_id' => (string) $order_id,
+			'order_id' => (string) $cf_order_id,
 			'order_amount' => $order->get_total(),
 			'order_currency' => $order->get_currency(),
 			'order_note' => 'WooCommerce',

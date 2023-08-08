@@ -38,12 +38,16 @@ class WC_Cashfree_Adapter {
 	public function checkout( $order_id ) {
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-checkout.php';
 
-		// Build the request params.
-		$request_params = WC_Cashfree_Request_Checkout::build( $order_id, $this->gateway );
+		$cf_order_id = $order_id;
 
 		// Get the Cashfree URL and set the order URL.
 		$env_value = $this->getCurlValue();
-		$order_url = $env_value['curlUrl'] . '/' . $order_id;
+		if($this->gateway->settings['order_id_prefix_text'] == "yes"){
+			$encoded_string = md5(home_url());
+			$order_id_prefix_text = substr($encoded_string, 0, 4);
+			$cf_order_id = $order_id_prefix_text.'_'.$order_id;
+		}
+		$order_url = $env_value['curlUrl'] . '/' . $cf_order_id;
 
 		// Set the request headers.
 		$args = array(
@@ -85,6 +89,9 @@ class WC_Cashfree_Adapter {
 			}
 		}
 
+		// Build the request params.
+		$request_params = WC_Cashfree_Request_Checkout::build( $order_id, $this->gateway, $cf_order_id );
+
 		// If the order is not found, create a new checkout.
 		$curl_post_field = json_encode( $request_params );
 
@@ -98,7 +105,7 @@ class WC_Cashfree_Adapter {
 
 			// Save the order cart.
 			try {
-				$this->cashfreeCheckoutCartSave( $order_id );
+				$this->cashfreeCheckoutCartSave( $order_id, $cf_order_id );
 			} catch ( Exception $exception ) {
 				WC_Cashfree::log( 'CartDetails: ' . $exception->getMessage(), 'critical' );
 			}
@@ -123,13 +130,13 @@ class WC_Cashfree_Adapter {
 		$curlValue = $this->getCurlValue();
 		$inContext = $this->gateway->settings['in_context'] === 'yes';
 		$orderStatus = $postData['order_status'];
-		$orderId = $postData['order_id'];
-		
+		$cfOrderId = $postData['order_id'];
+	
 		if ($inContext && $orderStatus !== 'PAID') {
 			throw new Exception($postData['transaction_msg']);
 		}
 		
-		$orderUrl = $curlValue['curlUrl'] . '/' . $orderId . '/payments';
+		$orderUrl = $curlValue['curlUrl'] . '/' . $cfOrderId . '/payments';
 		$result = $this->curlGetRequest($orderUrl);
 		
 		return $result;
@@ -169,9 +176,17 @@ class WC_Cashfree_Adapter {
 			'refund_id'		=> $refund_id,
 			'refund_note' 	=> $description,
 		);
-		$curlPostfield = json_encode($cartData);             
+		$curlPostfield = json_encode($cartData);  
+		
+		$cf_order_id = $order_id;
+
+		if($this->gateway->settings['order_id_prefix_text'] == "yes"){
+			$encoded_string = md5(home_url());
+			$order_id_prefix_text = substr($encoded_string, 0, 4);
+			$cf_order_id = $order_id_prefix_text.'_'.$order_id;
+		}
 	
-		$refundUrl = $getEnvValue['curlUrl']."/".$order_id."/refunds";
+		$refundUrl = $getEnvValue['curlUrl']."/".$cf_order_id."/refunds";
 		
 		try{
 			$result = $this->curlPostRequest($refundUrl, $curlPostfield);
@@ -183,7 +198,7 @@ class WC_Cashfree_Adapter {
 	}
 
 
-	private function cashfreeCheckoutCartSave($order_id) {
+	private function cashfreeCheckoutCartSave($order_id, $cf_order_id) {
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-items.php';
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-billing.php';
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-shipping.php';
@@ -218,7 +233,7 @@ class WC_Cashfree_Adapter {
 		}
 
 		$getEnvValue = $this->getCurlValue();
-		$addCartCurlUrl = $getEnvValue['curlUrl']."/".$order_id."/cart";
+		$addCartCurlUrl = $getEnvValue['curlUrl']."/".$cf_order_id."/cart";
 
 		$curlPostfield = json_encode($cartData);
 

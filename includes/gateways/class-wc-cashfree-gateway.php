@@ -37,6 +37,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		$this->in_context = 'yes' === $this->get_option( 'in_context', 'yes' );
 		$this->debug = 'yes' === $this->get_option( 'debug', 'no' );
 		$this->token_param = "{$this->id}-token";
+		$this->order_id_prefix_text = 'yes' === $this->get_option( 'order_id_prefix_text', 'yes' );
 
 		$this->load_dependencies();
 		$this->setup_actions();
@@ -142,7 +143,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 	 * @param string $order_key Order key.
 	 */
 	public function capture( $data, $order_key ) {
-		$order_id = $data['order_id'];
+		$order_id = $this->get_decode_order_id($data['order_id'], $this->order_id_prefix_text);
 		$order = $this->get_order( $order_id, $order_key );
 		if ( !$order || !$order->needs_payment() && !$order->has_status('processing') && !$order->has_status('completed') ) {
 			wc_add_notice( __( 'Cashfree capture error.', 'cashfree' ), 'error' );
@@ -202,7 +203,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 	 * @param string $order_key  Order key.
 	 */
 	public function cancel( $post_data, $order_key ) {
-		$order_id = $post_data['order_id'];
+		$order_id = $this->get_decode_order_id($post_data['order_id'], $this->order_id_prefix_text);
 		$order = $this->get_order( $order_id, $order_key );
 
 		if ( ! $order || ! $order->needs_payment() ) {
@@ -269,7 +270,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			return;
 		}
 
-		$order_id = $post_data['orderId'];
+		$order_id = $this->get_decode_order_id($post_data['order_id'], $this->order_id_prefix_text);
 		$order = $this->get_order( $order_id, $order_key );
 
 		if ( ! $order || ! $order->needs_payment() ) {
@@ -278,7 +279,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 
 		try {
 			$post_data['order_status'] = 'PAID';
-			$post_data['order_id'] = $order_id;
+			$post_data['order_id'] = $post_data['orderId'];
 			$post_data['transaction_msg'] = $post_data['txMsg'];
 
 			$this->adapter->notify( $post_data );
@@ -382,6 +383,17 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			return $order;
 		}
 		return false;
+	}
+
+	protected function get_decode_order_id($order_id, $prefix_setting) {
+		if($prefix_setting == "yes"){
+			$encoded_string = md5(home_url());
+			$order_id_prefix_text = substr($encoded_string, 0, 4);
+			$prefix_text = $order_id_prefix_text.'_';
+			$order_id = str_replace($prefix_text, '', $order_id);
+		}
+
+		return $order_id;
 	}
 
 }

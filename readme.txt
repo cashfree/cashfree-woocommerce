@@ -3,8 +3,8 @@ Contributors: devcashfree
 Requires at least: 4.4
 Tested up to: 6.2
 Requires PHP: 5.6
-Stable tag: 4.4.7
-Version: 4.4.7
+Stable tag: 4.5.0
+Version: 4.5.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -32,6 +32,10 @@ In the search field type "Cashfree" and click Search Plugins. Once you’ve foun
 The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation).
 
 == Changelog ==
+
+= 4.5.0 =
+* Change error message in case of domain name is not whitelist
+* Customize your order ID prefix to maintain distinct identification for orders, especially when managing multiple stores with shared order sequences. By setting a unique prefix for each store, you ensure that orders remain organized and easily distinguishable.
 
 = 4.4.6 =
 * Bug fixes
