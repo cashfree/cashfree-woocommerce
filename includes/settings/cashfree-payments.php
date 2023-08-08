@@ -8,7 +8,8 @@ defined( 'ABSPATH' ) || exit;
 return array(
 	array(
 		'type'  => 'title',
-		'description'  => __( '*To ensure seamless payment integration, it is necessary to comply with payment regulations by whitelisting your domain. Please click on the <a href="https://docs.cashfree.com/docs/developers-whitelisting" target="_blank">link</a> provided to whitelist your domain.', 'cashfree' ),
+		'description'  => __( '<b>*</b>To ensure seamless payment integration, it is necessary to comply with payment regulations by whitelisting your domain. Please click on the <a href="https://docs.cashfree.com/docs/developers-whitelisting" target="_blank">link</a> provided to whitelist your domain.</br>
+		<b>*</b>Disabling the <b>Enable Order Id Prefix</b> after its been enabled might impact your ability to track and manage orders accurately. Consider the implications before making changes. </br>Please be mindful of the impact on your order management process before toggling this setting.', 'cashfree' ),
 	),
 	'enabled'   		=> array(
 		'title'   		=> __( 'Enable/Disable', 'cashfree' ),
@@ -65,13 +66,21 @@ return array(
 		'description' => __('This controls the title which the user sees during checkout.', 'cashfree'),
 		'desc_tip'    => true
 	),
+	'order_id_prefix_text' => array(
+		'title'       => __('Order Id Prefix', 'cashfree'),
+		'type'        =>  'checkbox',
+		'label'       => __( 'Enable Order Id Prefix', 'cashfree' ),
+		'default'     => __('no', 'cashfree'),
+		'description' => __('Enable this option to add a prefix to the order IDs when creating new orders', 'cashfree'),
+		'desc_tip'    => true
+	),
 	'in_context'		=> array(
 		'title'       	=> __( 'In Context', 'cashfree' ),
 		'type'        	=> 'checkbox',
 		'label'       	=> __( 'Enable In Context', 'cashfree' ),
 		'default'     	=> 'yes',
 		'description' 	=> __( 'Cashfree In Context can be used to accept payments without redirection', 'cashfree' ),
-		'desc_tip'    => true
+		'desc_tip'    	=> true
 	),
 	'enabledOffers'   	=> array(
 		'title'   		=> __( 'Widget Enable/Disable', 'cashfree' ),
