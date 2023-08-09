@@ -3,8 +3,8 @@ Contributors: devcashfree
 Requires at least: 4.4
 Tested up to: 6.2
 Requires PHP: 5.6
-Stable tag: 4.5.0
-Version: 4.5.0
+Stable tag: 4.5.1
+Version: 4.5.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -16,6 +16,23 @@ Official Cashfree Payment Gateway plugin for WooCommerce.
 This is the official Cashfree Payment Gateway plugin for WooCommerce. By integrating this plugin with your WooCommerce store you can accept payments via 100+ domestic as well as international payment modes and use advanced features such as instant refunds for online and COD orders, pre-authorization for card payments, instant settlements, and more.
 
 For more information about Cashfree Payments please go to https://cashfree.com.
+
+== Frequently Asked Questions ==
+
+= Is Cashfree Payments Plugin free? =
+
+Yes! Cashfree Payments Plugin are and always will be free.
+
+= domain.name is not enabled. Please reach out to cashfree? =
+
+You might be facing this issue because your domain is not yet whitelisted. But don't worry, we've got you covered! To resolve this, simply click on the [link](https://docs.cashfree.com/docs/developers-whitelisting) provided to whitelist your domain.
+
+= What should I do if I'm using the Cashfree Payments plugin on multiple WooCommerce domains and encounter duplicate order IDs? =
+
+No worries, we've got a simple solution for you! If you're managing the Cashfree Payments plugin across multiple WooCommerce domains and you notice the possibility of duplicate order IDs due to sequential generation. To ensure a unique identification for orders originating from different domains, consider enabling the "Order ID Prefix" feature in the plugin's configuration settings.
+Enabling the order ID prefix guarantees a seamless experience for you and your customers. By adding a unique prefix to each order ID, you'll effortlessly distinguish orders across your various domains.
+Disabling the Enable Order Id Prefix after it's been enabled might break post-order flows. Consider the implications before making changes.
+Please be mindful of the impact on your order management process before toggling this setting.
 
 == Installation ==
 
