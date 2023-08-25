@@ -3,8 +3,8 @@ Contributors: devcashfree
 Requires at least: 4.4
 Tested up to: 6.2
 Requires PHP: 5.6
-Stable tag: 4.5.1
-Version: 4.5.1
+Stable tag: 4.5.2
+Version: 4.5.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -50,9 +50,13 @@ The manual installation method involves downloading our plugin and uploading it 
 
 == Changelog ==
 
+= 4.5.2 =
+* Added compatibility with High-Performance order storage (COT).
+
 = 4.5.0 =
-* Change error message in case of domain name is not whitelist
-* Customize your order ID prefix to maintain distinct identification for orders, especially when managing multiple stores with shared order sequences. By setting a unique prefix for each store, you ensure that orders remain organized and easily distinguishable.
+* Change error message for cases where the domain name is not whitelisted.
+* Introduce the ability to customize the order ID prefix. This feature is particularly useful when managing multiple stores with shared order sequences. By assigning a unique prefix to each store, you can maintain clear organization and easy distinction between orders.
+
 
 = 4.4.6 =
 * Bug fixes
