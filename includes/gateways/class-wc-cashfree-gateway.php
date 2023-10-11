@@ -272,8 +272,13 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 
 		$order_id = $this->get_decode_order_id($post_data['order_id'], $this->order_id_prefix_text);
 		$order = $this->get_order( $order_id, $order_key );
+		if (!$order) {
+			return;
+		}
 
-		if ( ! $order || ! $order->needs_payment() ) {
+		$orderStatus = $order->get_status();
+
+		if (($order->needs_payment() === false and ($orderStatus === 'cancelled') === false)) {
 			return;
 		}
 
