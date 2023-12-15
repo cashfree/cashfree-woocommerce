@@ -22,16 +22,16 @@ class WC_Cashfree_Request_Item {
 		$product = $item->get_product();
 
 		return array(
-			'reference'   			=> substr( $item->get_variation_id() ? $item->get_variation_id() : $item->get_product_id(), 0, 254 ),
-			'name'        			=> substr( $item->get_name(), 0, 254 ),
-			'description' 			=> substr( $product->get_description(), 0, 499 ),
+			'item_id'   			=> substr( $item->get_variation_id() ? $item->get_variation_id() : $item->get_product_id(), 0, 254 ),
+			'item_name'        			=> substr( $item->get_name(), 0, 254 ),
+			'item_description' 			=> substr( $product->get_description(), 0, 499 ),
 			"tags" 					=> [],
-			'details_url' 			=> get_permalink( $item->get_product_id() ),
-			'image_url'   			=> (string) wp_get_attachment_image_url( $product->get_image_id(), 'full' ),
-			'original_unit_price'  	=> $product->get_regular_price(),
-			'discounted_unit_price'	=> $product->get_price(),
-			'quantity'         		=> $item->get_quantity(),
-			'currency' 				=>  $order->get_currency()
+			'item_details_url' 			=> get_permalink( $item->get_product_id() ),
+			'item_image_url'   			=> (string) wp_get_attachment_image_url( $product->get_image_id(), 'full' ),
+			'item_original_unit_price'  	=> $product->get_regular_price(),
+			'item_discounted_unit_price'	=> $product->get_price(),
+			'item_quantity'         		=> $item->get_quantity(),
+			'item_currency' 				=>  $order->get_currency()
 		);
 	}
 }

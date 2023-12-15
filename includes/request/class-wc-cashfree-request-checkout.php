@@ -20,12 +20,19 @@ class WC_Cashfree_Request_Checkout {
 	 */
 	public static function build( $order_id, $gateway, $cf_order_id ) {
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-billing.php';
+		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-items.php';
+		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-shipping.php';
 
 		$order = wc_get_order( $order_id );
 
 		$customer_email = $order->get_billing_email();
 		$customer_phone = self::get_phone_number($order);
+		$billing_address=$order->get_address( 'billing' ) ;
+		if ( !empty($billing_address) ) {
+			$postCode = (!empty($billing_address['postcode'])) ? $billing_address['postcode'] : "";
+		}
 		$billing_address = WC_Cashfree_Request_Billing::build( $order_id );
+		$shipping_address = WC_Cashfree_Request_Shipping::build( $order_id );
 		$customerName = $billing_address ? $billing_address['data']['full_name'] : '';
 		
 		if ( is_user_logged_in() ) {
@@ -50,6 +57,17 @@ class WC_Cashfree_Request_Checkout {
 			'order_meta' => array(
 				'notify_url' => self::get_notify_url( 'notify', $order->get_order_key(), $gateway ),
 				'return_url' => self::get_return_url('capture', $order->get_order_key(), $gateway)
+			),
+			'cart_details' => array(
+				'shipping_address'	=> $shipping_address['shippingAddress'],
+				'billing_address'	=> $billing_address['billingAddress'],
+				'pincode'      		=> $postCode,
+				'cart_items'           	=> array_map(
+					function( $item ) use ( $order ) {
+						return WC_Cashfree_Request_Item::build( $order, $item );
+					},
+					array_values( $order->get_items() )
+				)
 			)
 		);
 
