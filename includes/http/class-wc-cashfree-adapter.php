@@ -17,6 +17,10 @@ class WC_Cashfree_Adapter {
 	 */
 	protected $gateway;
 
+	const API_VERSION_20230801 = '2023-08-01';
+	const API_VERSION_20220901 = '2022-09-01';
+	const API_VERSION_20210521 = '2021-05-21';
+
 	/**
 	 * Constructor.
 	 *
@@ -96,19 +100,11 @@ class WC_Cashfree_Adapter {
 		$curl_post_field = json_encode( $request_params );
 
 		try {
-			$result = $this->curlPostRequest( $env_value['curlUrl'], $curl_post_field, $request_params['order_id'] );
-
+			$result = $this->curlPostRequest( $env_value['curlUrl'], $curl_post_field, self::API_VERSION_20230801, $request_params['order_id'] );
 			$response = array(
 				'order_token' => $result->payment_session_id,
 				'environment' => $env_value['environment'],
 			);
-
-			// Save the order cart.
-			try {
-				$this->cashfreeCheckoutCartSave( $order_id, $cf_order_id );
-			} catch ( Exception $exception ) {
-				WC_Cashfree::log( 'CartDetails: ' . $exception->getMessage(), 'critical' );
-			}
 
 			return $response;
 		} catch ( Exception $e ) {
@@ -189,56 +185,8 @@ class WC_Cashfree_Adapter {
 		$refundUrl = $getEnvValue['curlUrl']."/".$cf_order_id."/refunds";
 		
 		try{
-			$result = $this->curlPostRequest($refundUrl, $curlPostfield);
+			$result = $this->curlPostRequest($refundUrl, $curlPostfield, self::API_VERSION_20220901);
 			return $result;
-		} catch(Exception $e) {
-			throw new Exception($e->getMessage());
-		}
-
-	}
-
-
-	private function cashfreeCheckoutCartSave($order_id, $cf_order_id) {
-		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-items.php';
-		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-billing.php';
-		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-shipping.php';
-
-		$order = new WC_Order( $order_id );
-
-		$billing_address=$order->get_address( 'billing' ) ;
-		if ( !empty($billing_address) ) {
-			$postCode = (!empty($billing_address['postcode'])) ? $billing_address['postcode'] : "";
-		}
-		$billing_address = WC_Cashfree_Request_Billing::build( $order_id );
-		$shipping_address = WC_Cashfree_Request_Shipping::build( $order_id );
-		$cartData = array(
-			'shipping_address'	=> $shipping_address['shippingAddress'],
-			'billing_address'	=> $billing_address['billingAddress'],
-			'pincode'      		=> $postCode,
-			'customer_note'    	=> $order->get_currency(),
-			'items'           	=> array_map(
-				function( $item ) use ( $order ) {
-					return WC_Cashfree_Request_Item::build( $order, $item );
-				},
-				array_values( $order->get_items() )
-			)
-
-		);
-
-		if (!empty($billing_address['data'])) {
-			$cartData['customer_billing_address'] = $billing_address['data'];
-		}
-		if (!empty($shipping_address['data'])) {
-			$cartData['customer_shipping_address'] = $shipping_address['data'];
-		}
-
-		$getEnvValue = $this->getCurlValue();
-		$addCartCurlUrl = $getEnvValue['curlUrl']."/".$cf_order_id."/cart";
-
-		$curlPostfield = json_encode($cartData);
-
-		try{
-			$this->curlPostRequest($addCartCurlUrl, $curlPostfield);
 		} catch(Exception $e) {
 			throw new Exception($e->getMessage());
 		}
@@ -257,11 +205,11 @@ class WC_Cashfree_Adapter {
 	}	
 
 	// Post request for gateway
-	private function curlPostRequest($curlUrl, $data, $idemKey = "") {
+	private function curlPostRequest($curlUrl, $data, $apiVersion, $idemKey = "") {
 		$headers = [
 			'Accept' => 'application/json',
 			'Content-Type' => 'application/json',
-			'x-api-version' => '2022-09-01',
+			'x-api-version' => $apiVersion,
 			'x-client-id' => $this->gateway->settings['app_id'],
 			'x-client-secret' => $this->gateway->settings['secret_key']
 		];
