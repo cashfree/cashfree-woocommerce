@@ -1,5 +1,8 @@
 ## Official Cashfree Payment Gateway plugin for WooCommerce.
 
+![GitHub](https://img.shields.io/github/license/cashfree/cashfree-woocommerce) ![Discord](https://img.shields.io/discord/931125665669972018?label=discord) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/cashfree/cashfree-woocommerce/master) ![GitHub release (with filter)](https://img.shields.io/github/v/release/cashfree/cashfree-woocommerce?label=latest)  ![GitHub forks](https://img.shields.io/github/forks/cashfree/cashfree-woocommerce) ![GitHub Repo stars](https://img.shields.io/github/stars/cashfree/cashfree-woocommerce)
+
+
 ### Description
 
 This is the official Cashfree Payment Gateway plugin for WooCommerce. By integrating this plugin with your WooCommerce store you can accept payments via 120+ domestic as well as international payment modes and use advanced features such as instant refunds for online and COD orders, pre-authorization for card payments, instant settlements, and more.
