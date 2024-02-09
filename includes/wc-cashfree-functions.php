@@ -17,7 +17,6 @@ function wc_get_cashfree_template( $template_name, $args = array(), $template_pa
  */
 function wc_cashfree_script( $handle, $params = null ) {
 	$script = ( include 'wc-cashfree-scripts.php' )[ $handle ];
-
 	wp_enqueue_script( $handle, $script['src'], $script['deps'], $script['version'], true );
 
 	if ( null !== $params ) {
@@ -31,14 +30,6 @@ function wc_cashfree_script( $handle, $params = null ) {
  * @param array $settings Gateway settings.
  */
 function wc_cashfree_js( $settings ) {
-	if ($settings["in_context"] === "yes") {
-		wc_cashfree_script( 'wc-cashfree-pippin-js' );
-	} else {
-		if($settings["sandbox"] === "no") {
-			wc_cashfree_script('wc-cashfree-prod-drop-js');
-		} else {
-			wc_cashfree_script('wc-cashfree-sandbox-drop-js');
-		}
-	}
+	wc_cashfree_script('wc-cashfree-checkout-js');
 	wc_cashfree_script('wc-cashfree-checkout');
 }

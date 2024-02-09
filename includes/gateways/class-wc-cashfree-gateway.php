@@ -34,7 +34,6 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		$this->description = $this->get_option( 'description' );
 		$this->order_button_text = $this->get_option( 'order_button_text' );
 		$this->sandbox = 'yes' === $this->get_option( 'sandbox', 'yes' );
-		$this->in_context = 'yes' === $this->get_option( 'in_context', 'yes' );
 		$this->debug = 'yes' === $this->get_option( 'debug', 'no' );
 		$this->token_param = "{$this->id}-token";
 		$this->order_id_prefix_text = 'yes' === $this->get_option( 'order_id_prefix_text', 'yes' );
@@ -125,10 +124,9 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			wc_add_notice( $e->getMessage(), 'error' );
 			return array( 'result' => 'failure' );
 		}
-
 		$order   = wc_get_order( $order_id );
 		$pay_url = $order->get_checkout_payment_url( true );
-		$redirect_url = add_query_arg( $this->token_param, $response['order_token'], $pay_url );
+		$redirect_url = add_query_arg( $this->token_param, $response['payment_session_id'], $pay_url );
 
 		return array(
 			'result'   => 'success',
@@ -356,21 +354,17 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			return;
 		}
 
-		$token = wc_clean(wp_unslash($_GET[$this->token_param]));
+		$payment_session_id = wc_clean(wp_unslash($_GET[$this->token_param]));
 		$key = wc_clean(wp_unslash($_GET['key']));
 		$cf_version = get_plugin_data(WC_CASHFREE_DIR_PATH . 'cashfree.php')['Version'];
 
 		wc_cashfree_js($this->settings);
 
 		wc_cashfree_script('wc-cashfree-checkout', [
-			'token' => $token,
+			'payment_session_id' => $payment_session_id,
 			'environment' => $this->get_environment(),
-			'capture_url' => WC_Cashfree_Request_Checkout::get_url('capture', $key, $this->id),
-			'cancel_url' => WC_Cashfree_Request_Checkout::get_url('cancel', $key, $this->id),
-			'dismiss_url' => WC_Cashfree_Request_Checkout::get_url('dismiss', $key, $this->id),
 			'woo_version' => WC()->version,
 			'cf_version' => $cf_version,
-			'in_context' => $this->in_context,
 		]);
 	}
 

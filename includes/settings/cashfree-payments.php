@@ -74,14 +74,6 @@ return array(
 		'description' => __('Enable this option to add a prefix to the order IDs when creating new orders', 'cashfree'),
 		'desc_tip'    => true
 	),
-	'in_context'		=> array(
-		'title'       	=> __( 'In Context', 'cashfree' ),
-		'type'        	=> 'checkbox',
-		'label'       	=> __( 'Enable In Context', 'cashfree' ),
-		'default'     	=> 'yes',
-		'description' 	=> __( 'Cashfree In Context can be used to accept payments without redirection', 'cashfree' ),
-		'desc_tip'    	=> true
-	),
 	'enabledOffers'   	=> array(
 		'title'   		=> __( 'Widget Enable/Disable', 'cashfree' ),
 		'type'    		=> 'checkbox',
