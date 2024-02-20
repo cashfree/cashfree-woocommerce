@@ -4,12 +4,18 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-
+use Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry;
 /**
  * Cashfree gateway class.
  */
 final class WC_Cashfree_Payments extends WC_Cashfree_Gateway {
 
+		/**
+	 * Reference to the PaymentMethodRegistry instance.
+	 *
+	 * @var PaymentMethodRegistry
+	 */
+	private $payment_method_registry;
 	/**
 	 * Constructor.
 	 */

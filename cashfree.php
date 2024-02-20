@@ -22,17 +22,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// to read main.js file
-define ('WPCO_URL', trailingslashit(plugins_url('/',__FILE__)));
-
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-add_action('before_woocommerce_init', function() {
-	if (class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class))
-    {
-		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
-	}
-});
 
 /**
  * Cashfree main class.
@@ -72,7 +62,7 @@ class WC_Cashfree {
 		define( 'WC_CASHFREE_VERSION', $plugin_data['Version'] );
 
 		$this->settings = get_option( 'woocommerce_' . self::PAYMENT_GATEWAY_ID . '_settings' );
-		$this->enabled  = 'yes' === $this->settings['enabled'] && ! empty( $this->settings['merchant_id'] );
+		$this->enabled  = 'yes' === $this->settings['enabled'];
 
 		require_once WC_CASHFREE_DIR_PATH . 'includes/wc-cashfree-functions.php';
 		require_once WC_CASHFREE_DIR_PATH . 'includes/http/class-wc-cashfree-adapter.php';
@@ -82,6 +72,7 @@ class WC_Cashfree {
 		add_filter( 'woocommerce_before_add_to_cart_form' , array( $this, 'wp_cashfree_offers' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
+		add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'woocommerce_gateway_cashfree_woocommerce_block_support' ) );
 	}
 
 	public function wp_cashfree_offers() {
@@ -160,6 +151,29 @@ class WC_Cashfree {
 		}
 
 		self::$log->log( $level, $message, array( 'source' => self::PAYMENT_GATEWAY_ID ) );
+	}
+
+	public static function woocommerce_gateway_cashfree_woocommerce_block_support() {
+		if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+			require_once WC_CASHFREE_DIR_PATH . 'includes/gateways/class-wc-cashfree-block-support.php';
+			add_action(
+				'woocommerce_blocks_payment_method_type_registration',
+				function( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+					$container = Automattic\WooCommerce\Blocks\Package::container();
+					// registers as shared instance.
+					$container->register(
+						WC_Cashfree_Blocks_Support::class,
+						function() {
+							return new WC_Cashfree_Blocks_Support();
+						}
+					);
+					$payment_method_registry->register(
+						$container->get( WC_Cashfree_Blocks_Support::class )
+					);
+				},
+				5
+			);
+		}
 	}
 }
 

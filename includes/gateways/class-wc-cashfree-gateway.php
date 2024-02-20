@@ -73,7 +73,6 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		$parent_available = parent::is_available();
 		$app_id = $this->get_app_id();
 		$secret_key = $this->get_secret_key();
-		
 		return $parent_available && !empty($app_id) && !empty($secret_key);
 	}
 
