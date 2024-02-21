@@ -17,9 +17,7 @@ class WC_Cashfree_Adapter {
 	 */
 	protected $gateway;
 
-	const API_VERSION_20230801 = '2023-08-01';
 	const API_VERSION_20220901 = '2022-09-01';
-	const API_VERSION_20210521 = '2021-05-21';
 
 	/**
 	 * Constructor.
@@ -57,7 +55,7 @@ class WC_Cashfree_Adapter {
 		$args = array(
 			'timeout' => 30,
 			'headers' => array(
-				'x-api-version'   => '2022-09-01',
+				'x-api-version'   => self::API_VERSION_20220901,
 				'x-client-id'     => $this->gateway->settings['app_id'],
 				'x-client-secret' => $this->gateway->settings['secret_key'],
 			),
@@ -72,7 +70,7 @@ class WC_Cashfree_Adapter {
 			$cf_order = json_decode( wp_remote_retrieve_body( $response ) );
 
 			// Check if the order has already been paid for.
-			if ( $cf_order === 'PAID' ) {
+			if ( $cf_order->order_status === 'PAID' ) {
 				throw new Exception( 'Please reach out to the support team' );
 			}
 
@@ -82,12 +80,12 @@ class WC_Cashfree_Adapter {
 				&& round( $cf_order->order_amount ) === round( wc_get_order( $order_id )->get_total() )
 				&& $cf_order->order_currency === wc_get_order( $order_id )->get_currency()
 			) {
-				$response = array(
-					'order_token' => $cf_order->payment_session_id,
+				$cashfree_wc_response = array(
+					'payment_session_id' => $cf_order->payment_session_id,
 					'environment' => $env_value['environment'],
 				);
 
-				return $response;
+				return $cashfree_wc_response;
 			} else {
 				throw new Exception( 'Please reach out to the support team' );
 			}
@@ -100,13 +98,13 @@ class WC_Cashfree_Adapter {
 		$curl_post_field = json_encode( $request_params );
 
 		try {
-			$result = $this->curlPostRequest( $env_value['curlUrl'], $curl_post_field, self::API_VERSION_20230801, $request_params['order_id'] );
-			$response = array(
-				'order_token' => $result->payment_session_id,
+			$result = $this->curlPostRequest( $env_value['curlUrl'], $curl_post_field, self::API_VERSION_20220901, $request_params['order_id'] );
+			$cashfree_wc_response = array(
+				'payment_session_id' => $result->payment_session_id,
 				'environment' => $env_value['environment'],
 			);
 
-			return $response;
+			return $cashfree_wc_response;
 		} catch ( Exception $e ) {
 			throw new Exception( $e->getMessage() );
 		}
@@ -124,13 +122,8 @@ class WC_Cashfree_Adapter {
 	public function capture(array $postData)
 	{
 		$curlValue = $this->getCurlValue();
-		$inContext = $this->gateway->settings['in_context'] === 'yes';
 		$orderStatus = $postData['order_status'];
 		$cfOrderId = $postData['order_id'];
-	
-		if ($inContext && $orderStatus !== 'PAID') {
-			throw new Exception($postData['transaction_msg']);
-		}
 		
 		$orderUrl = $curlValue['curlUrl'] . '/' . $cfOrderId . '/payments';
 		$result = $this->curlGetRequest($orderUrl);
@@ -240,7 +233,7 @@ class WC_Cashfree_Adapter {
 		$args = array(
 			'timeout'     => '30',
 			'headers'     => array(
-				'x-api-version' 	=> 	'2021-05-21',
+				'x-api-version' 	=> 	self::API_VERSION_20220901,
 				'x-client-id' 		=> 	$this->gateway->settings['app_id'],
 				'x-client-secret'	=>  $this->gateway->settings['secret_key'],
 			),
