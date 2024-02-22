@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Cashfree
- * Version: 4.5.6
+ * Version: 4.5.7
  * Plugin URI: https://github.com/cashfree/cashfree-woocommerce
  * Description: Payment gateway plugin by Cashfree Payments for Woocommerce sites.
  * Author: devcashfree
@@ -23,6 +23,14 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+// Adding this for making compatible with HPOC
+add_action('before_woocommerce_init', function() {
+	if (class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class))
+    {
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+	}
+});
 
 /**
  * Cashfree main class.
