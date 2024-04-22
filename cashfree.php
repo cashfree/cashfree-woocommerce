@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Cashfree
- * Version: 4.5.8
+ * Version: 4.5.9
  * Plugin URI: https://github.com/cashfree/cashfree-woocommerce
  * Description: Payment gateway plugin by Cashfree Payments for Woocommerce sites.
  * Author: devcashfree
@@ -70,7 +70,9 @@ class WC_Cashfree {
 		define( 'WC_CASHFREE_VERSION', $plugin_data['Version'] );
 
 		$this->settings = get_option( 'woocommerce_' . self::PAYMENT_GATEWAY_ID . '_settings' );
-		$this->enabled  = 'yes' === $this->settings['enabled'];
+		if($this->settings) {
+			$this->enabled  = 'yes' === $this->settings['enabled'];
+		}
 
 		require_once WC_CASHFREE_DIR_PATH . 'includes/wc-cashfree-functions.php';
 		require_once WC_CASHFREE_DIR_PATH . 'includes/http/class-wc-cashfree-adapter.php';
