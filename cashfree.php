@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Cashfree
- * Version: 4.5.9
+ * Version: 4.6.0
  * Plugin URI: https://github.com/cashfree/cashfree-woocommerce
  * Description: Payment gateway plugin by Cashfree Payments for Woocommerce sites.
  * Author: devcashfree
@@ -11,9 +11,9 @@
  * Text Domain: woocommerce-extension
  * Domain Path: /languages
  * Requires at least: 4.4
- * Tested up to: 6.4
+ * Tested up to: 6.5
  * WC requires at least: 3.0
- * WC tested up to: 8.6
+ * WC tested up to: 8.8
  *
  *
  * License: GPLv3
