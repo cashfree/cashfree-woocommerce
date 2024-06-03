@@ -152,6 +152,16 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			$response = $this->adapter->capture( $data );
 			switch ($response->payment_status) {
 				case 'SUCCESS':
+				    if ($response->payment_group == "cash_on_delivery") {
+                        $order->add_order_note(
+                            sprintf(
+                                __( 'Ordered via Cash on Delivery.<br/>Payment to be made upon delivery.<br/>Transaction Id: %1$s.', 'cashfree' ),
+                                $response->cf_payment_id
+                            )
+                        );
+                        wp_safe_redirect( $this->get_return_url( $order ) );
+                        exit;
+                    }
 					$order->payment_complete( $response->cf_payment_id );
 					$order->add_order_note(
 						sprintf(
