@@ -122,7 +122,6 @@ class WC_Cashfree_Adapter {
 	public function capture(array $postData)
 	{
 		$curlValue = $this->getCurlValue();
-		$orderStatus = $postData['order_status'];
 		$cfOrderId = $postData['order_id'];
 		
 		$orderUrl = $curlValue['curlUrl'] . '/' . $cfOrderId . '/payments';
