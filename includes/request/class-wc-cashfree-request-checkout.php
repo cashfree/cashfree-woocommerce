@@ -56,7 +56,7 @@ class WC_Cashfree_Request_Checkout {
 			'order_note' => 'WooCommerce',
 			'order_meta' => array(
 				'notify_url' => self::get_notify_url( 'notify', $order->get_order_key(), $gateway ),
-				'return_url' => self::get_return_url('capture', $order->get_order_key(), $gateway)
+				'return_url' => self::get_return_url('capture', $order->get_order_key(), $gateway->id)
 			),
 			'cart_details' => array(
 				'shipping_address'	=> $shipping_address['shippingAddress'],
@@ -100,15 +100,25 @@ class WC_Cashfree_Request_Checkout {
 	 *
 	 * @return string
 	 */
-	public static function get_return_url( $action, $order_key, $gateway ) {
+	public static function get_return_url( $action, $order_key, $gateway_id ) {
 		$query_args = array(
 			'order_id'    => '{order_id}',
 			'order_key' => $order_key,
 			'action'      => $action
 		);
-		$api_request_url = WC()->api_request_url( $gateway->id );
+		$api_request_url = WC()->api_request_url( $gateway_id );
 		return add_query_arg( $query_args, $api_request_url );
 	}
+
+    public static function get_callback_url( $action, $order_key, $gateway_id, $order_id ) {
+        $query_args = array(
+            'order_id'    => $order_id,
+            'order_key' => $order_key,
+            'action'      => $action
+        );
+        $api_request_url = WC()->api_request_url( $gateway_id );
+        return add_query_arg( $query_args, $api_request_url );
+    }
 
 
 	/**

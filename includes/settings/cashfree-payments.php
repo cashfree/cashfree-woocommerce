@@ -69,6 +69,14 @@ return array(
 		'description' => __('Enable this option to add a prefix to the order IDs when creating new orders', 'cashfree'),
 		'desc_tip'    => true
 	),
+    'order_in_context' => array(
+        'title'       => __('Cashfree Popup Checkout', 'cashfree'),
+        'type'        =>  'checkbox',
+        'label'       => __( 'Enable Cashfree Popup Checkout', 'cashfree' ),
+        'default'     => __('no', 'cashfree'),
+        'description' => __('Enable this option to open Cashfree Popup Checkout', 'cashfree'),
+        'desc_tip'    => true
+    ),
 	'enabledOffers'   	=> array(
 		'title'   		=> __( 'Widget Enable/Disable', 'cashfree' ),
 		'type'    		=> 'checkbox',

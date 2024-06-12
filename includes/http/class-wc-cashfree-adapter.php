@@ -39,7 +39,6 @@ class WC_Cashfree_Adapter {
 	 */
 	public function checkout( $order_id ) {
 		require_once WC_CASHFREE_DIR_PATH . 'includes/request/class-wc-cashfree-request-checkout.php';
-
 		$cf_order_id = $order_id;
 
 		// Get the Cashfree URL and set the order URL.
@@ -83,6 +82,7 @@ class WC_Cashfree_Adapter {
 				$cashfree_wc_response = array(
 					'payment_session_id' => $cf_order->payment_session_id,
 					'environment' => $env_value['environment'],
+                    'order_id' => $cf_order_id,
 				);
 
 				return $cashfree_wc_response;
@@ -102,6 +102,7 @@ class WC_Cashfree_Adapter {
 			$cashfree_wc_response = array(
 				'payment_session_id' => $result->payment_session_id,
 				'environment' => $env_value['environment'],
+                'order_id' => $cf_order_id,
 			);
 
 			return $cashfree_wc_response;

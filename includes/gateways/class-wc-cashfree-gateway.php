@@ -37,6 +37,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		$this->debug = 'yes' === $this->get_option( 'debug', 'no' );
 		$this->token_param = "{$this->id}-token";
 		$this->order_id_prefix_text = 'yes' === $this->get_option( 'order_id_prefix_text', 'yes' );
+        $this->order_in_context = 'yes' === $this->get_option( 'order_in_context', 'yes' );
 
 		$this->load_dependencies();
 		$this->setup_actions();
@@ -125,7 +126,10 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		}
 		$order   = wc_get_order( $order_id );
 		$pay_url = $order->get_checkout_payment_url( true );
-		$redirect_url = add_query_arg( $this->token_param, $response['payment_session_id'], $pay_url );
+        $redirect_url = add_query_arg( array($this->token_param => $response['payment_session_id'],
+            'order_id' => $response['order_id']),
+            $pay_url
+        );
 
 		return array(
 			'result'   => 'success',
@@ -362,11 +366,11 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		if (!$this->is_available() || !is_checkout() || empty($_GET[$this->token_param])) {
 			return;
 		}
-
+		
 		$payment_session_id = wc_clean(wp_unslash($_GET[$this->token_param]));
 		$key = wc_clean(wp_unslash($_GET['key']));
+        $order_id = wc_clean(wp_unslash($_GET['order_id']));
 		$cf_version = get_plugin_data(WC_CASHFREE_DIR_PATH . 'cashfree.php')['Version'];
-
 		wc_cashfree_js($this->settings);
 
 		wc_cashfree_script('wc-cashfree-checkout', [
@@ -374,6 +378,8 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			'environment' => $this->get_environment(),
 			'woo_version' => WC()->version,
 			'cf_version' => $cf_version,
+            'order_in_context' => $this->order_in_context,
+            'callback_url' => WC_Cashfree_Request_Checkout::get_callback_url('capture', $key, $this->id, $order_id)
 		]);
 	}
 
