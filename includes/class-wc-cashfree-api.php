@@ -15,6 +15,8 @@ class WC_Cashfree_Api {
 	 *
 	 * @param string $id Api identifier.
 	 */
+	private $id;
+	
 	public function __construct( $id ) {
 		$this->id = $id;
 
