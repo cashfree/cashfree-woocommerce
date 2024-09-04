@@ -12,13 +12,47 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  */
 abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 
-	/**
-	 * Cashfree adapter instance.
-	 *
-	 * @var WC_Cashfree_Adapter
-	 */
+	 /**
+     * Cashfree adapter instance.
+     *
+     * @var WC_Cashfree_Adapter
+     */
+    protected $adapter;
 
-	protected $adapter;
+    /**
+     * Sandbox mode enabled.
+     *
+     * @var bool
+     */
+    protected $sandbox;
+
+    /**
+     * Debug mode enabled.
+     *
+     * @var bool
+     */
+    protected $debug;
+
+    /**
+     * Token parameter name.
+     *
+     * @var string
+     */
+    protected $token_param;
+
+    /**
+     * Order ID prefix enabled.
+     *
+     * @var bool
+     */
+    protected $order_id_prefix_text;
+
+    /**
+     * Order in context enabled.
+     *
+     * @var bool
+     */
+    protected $order_in_context;
 
 	/**
 	 * Constructor.

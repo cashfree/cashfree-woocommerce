@@ -7,6 +7,8 @@ defined( 'ABSPATH' ) || exit;
 final class WC_Cashfree_Blocks_Support extends AbstractPaymentMethodType {
 
 	protected $name = 'cashfree';
+	protected $settings = [];
+    protected $gateway;
 
 	/**
 	 * Initializes the payment method type.
