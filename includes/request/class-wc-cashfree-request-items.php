@@ -28,8 +28,8 @@ class WC_Cashfree_Request_Item {
             "tags" 					    => [],
             'item_details_url' 			=> get_permalink( $item->get_product_id() ),
             'item_image_url'   			=> (string) wp_get_attachment_image_url( $product->get_image_id(), 'full' ),
-            'item_original_unit_price'  => $product->get_regular_price() ? $product->get_regular_price() : 0,
-            'item_discounted_unit_price'=> $product->get_price() ? $product->get_price() : 0,
+            'item_original_unit_price'  => number_format($product->get_regular_price() ? $product->get_regular_price() : 0, 2),
+            'item_discounted_unit_price'=> number_format($product->get_price() ? $product->get_price() : 0, 2),
             'item_quantity'         	=> $item->get_quantity(),
             'item_currency' 			=>  $order->get_currency()
         );

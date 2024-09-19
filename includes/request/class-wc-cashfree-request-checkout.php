@@ -51,7 +51,7 @@ class WC_Cashfree_Request_Checkout {
 				'customer_name' => $customerName
 			),
 			'order_id' => (string) $cf_order_id,
-			'order_amount' => $order->get_total(),
+			'order_amount' => number_format($order->get_total(), 2),
 			'order_currency' => $order->get_currency(),
 			'order_note' => 'WooCommerce',
 			'order_meta' => array(
