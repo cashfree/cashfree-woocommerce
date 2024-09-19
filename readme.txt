@@ -3,8 +3,8 @@ Contributors: devcashfree
 Requires at least: 4.4
 Tested up to: 6.5
 Requires PHP: 5.6
-Stable tag: 4.7.2
-Version: 4.7.2
+Stable tag: 4.7.4
+Version: 4.7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -49,6 +49,12 @@ In the search field type "Cashfree" and click Search Plugins. Once you’ve foun
 The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation).
 
 == Changelog ==
+
+= 4.7.4 =
+* Bug Fix: Order amount correction
+
+= 4.7.3 =
+* Deprecated Property Fix: Updated the cashfree classes to prevent deprecated warnings in PHP 8.2 and later by explicitly declaring properties instead of using dynamic properties.
 
 = 4.7.2 =
 * Added additional data to get trace of the request
