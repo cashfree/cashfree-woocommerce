@@ -162,7 +162,7 @@ class WC_Cashfree_Adapter {
     public function refund( $order_id, $refund_id, $amount, $description ) {
         $getEnvValue = $this->getCurlValue();
         $cartData = array(
-            'refund_amount'	=> $amount,
+            'refund_amount'	=> (float) str_replace(',', '', $amount),
             'refund_id'		=> $refund_id,
             'refund_note' 	=> $description,
         );
@@ -218,7 +218,6 @@ class WC_Cashfree_Adapter {
         $response = wp_remote_post( $curlUrl, $args );
         $http_code = wp_remote_retrieve_response_code( $response );
         $body     = json_decode(wp_remote_retrieve_body( $response ));
-
         if($http_code === 200) {
             return $body;
         } else {
