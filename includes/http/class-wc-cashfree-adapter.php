@@ -68,9 +68,7 @@ class WC_Cashfree_Adapter {
         // Check if the request was successful.
         if ( $http_code === 200 ) {
             $cf_order = json_decode( wp_remote_retrieve_body( $response ) );
-
-            // Check if the order has already been paid for.
-            if ( $cf_order->order_status === 'PAID' ) {
+            if ( $cf_order->order_status === 'PAID'  ||  $cf_order->order_status === 'EXPIRED' ) {
                 throw new Exception( 'Please reach out to the support team' );
             }
 

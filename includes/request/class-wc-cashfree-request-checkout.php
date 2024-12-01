@@ -63,8 +63,8 @@ class WC_Cashfree_Request_Checkout {
 				'billing_address'	=> $billing_address['billingAddress'],
 				'pincode'      		=> $postCode,
 				'cart_items'           	=> array_map(
-					function( $item ) use ( $order ) {
-						return WC_Cashfree_Request_Item::build( $order, $item );
+					function( $item ) {
+						return WC_Cashfree_Request_Item::build( $item );
 					},
 					array_values( $order->get_items() )
 				)
