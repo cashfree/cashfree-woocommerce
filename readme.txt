@@ -3,8 +3,8 @@ Contributors: devcashfree
 Requires at least: 4.4
 Tested up to: 6.5
 Requires PHP: 5.6
-Stable tag: 4.7.6
-Version: 4.7.6
+Stable tag: 4.7.7
+Version: 4.7.7
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree

@@ -179,6 +179,8 @@ class WC_Cashfree_Request_Checkout {
 	}
 
 	public static function cfConvertToNumber($input) {
-		return (float) str_replace(',', '', $input);
+		$amount = (float) str_replace(',', '', $input);
+		$amount = number_format($amount, 2, '.', '');
+		return $amount;
 	}
 }
