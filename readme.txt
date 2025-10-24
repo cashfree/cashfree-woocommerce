@@ -1,10 +1,10 @@
 === Cashfree for WooCommerce ===
 Contributors: devcashfree
 Requires at least: 4.4
-Tested up to: 6.5
+Tested up to: 6.8
 Requires PHP: 5.6
-Stable tag: 4.7.7
-Version: 4.7.7
+Stable tag: 4.7.8
+Version: 4.7.8
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -49,6 +49,9 @@ In the search field type "Cashfree" and click Search Plugins. Once you’ve foun
 The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation).
 
 == Changelog ==
+
+= 4.7.8 =
+* Release: Updated for compatibility with the latest WordPress release.
 
 = 4.7.6 =
 * Release: Add support for Tourfic plugin for hotel, tour, and apartment bookings.
