@@ -326,18 +326,30 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		if (($order->needs_payment() === false and ($orderStatus === 'cancelled') === false)) {
 			return;
 		}
+		$post_data['order_id'] = $post_data['orderId'];
+		$response = $this->adapter->capture( $post_data );
+		
+		$paymentStatus = null;
+		if (is_array($response) && isset($response['payment_status'])) {
+			$paymentStatus = $response['payment_status'];
+		} elseif (is_object($response) && isset($response->payment_status)) {
+			$paymentStatus = $response->payment_status;
+		}
+
+		if ( $paymentStatus != 'SUCCESS' ) {
+			WC_Cashfree::log('notify : webhook status is ' . (string) $paymentStatus, 'critical');
+			return;
+		}
 
 		try {
 			$post_data['order_status'] = 'PAID';
-			$post_data['order_id'] = $post_data['orderId'];
 			$post_data['transaction_msg'] = $post_data['txMsg'];
-
-			$this->adapter->notify( $post_data );
-			$order->payment_complete( $post_data['referenceId'] );
+			$referenceId = isset($response->cf_payment_id) ? $response->cf_payment_id : $post_data['referenceId'];
+			$order->payment_complete( $referenceId );
 			$order->add_order_note(
 				sprintf(
 					__( 'Webhook - Cashfree payment successful <br/>Transaction Id: %1$s.', 'cashfree' ),
-					$post_data['referenceId']
+					$referenceId
 				)
 			);
 		} catch ( Exception $e ) {
