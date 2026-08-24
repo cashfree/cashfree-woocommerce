@@ -188,7 +188,16 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 
 		try {
 			$response = $this->adapter->capture( $data );
-			switch ($response->payment_status) {
+			$payment_attempts = is_array( $response ) ? $response : array( $response );
+			$response = $payment_attempts[0];
+			$payment_status = isset( $response->payment_status ) ? $response->payment_status : null;
+			foreach ( $payment_attempts as $attempt ) {
+				if ( isset( $attempt->payment_status ) && $attempt->payment_status === 'SUCCESS' ) {
+					$payment_status = 'SUCCESS';
+					break;
+				}
+			}
+			switch ($payment_status) {
 				case 'SUCCESS':
 				    if ($response->payment_group == "cash_on_delivery") {
                         $order->add_order_note(
@@ -328,12 +337,15 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		}
 		$post_data['order_id'] = $post_data['orderId'];
 		$response = $this->adapter->capture( $post_data );
-		
-		$paymentStatus = null;
-		if (is_array($response) && isset($response['payment_status'])) {
-			$paymentStatus = $response['payment_status'];
-		} elseif (is_object($response) && isset($response->payment_status)) {
-			$paymentStatus = $response->payment_status;
+
+		$payment_attempts = is_array($response) ? $response : array($response);
+		$response = $payment_attempts[0];
+		$paymentStatus = isset($response->payment_status) ? $response->payment_status : null;
+		foreach ($payment_attempts as $attempt) {
+			if (isset($attempt->payment_status) && $attempt->payment_status === 'SUCCESS') {
+				$paymentStatus = 'SUCCESS';
+				break;
+			}
 		}
 
 		if ( $paymentStatus != 'SUCCESS' ) {
