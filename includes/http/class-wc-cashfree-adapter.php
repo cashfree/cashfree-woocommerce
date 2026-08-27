@@ -115,7 +115,7 @@ class WC_Cashfree_Adapter {
      *
      * @param array $postData post data.
      *
-     * @return array
+     * @return array Array of payment attempt objects for the order.
      *
      * @throws Exception If payment method is not properly configured or response status code is invalid.
      */
@@ -239,7 +239,8 @@ class WC_Cashfree_Adapter {
         $http_code = wp_remote_retrieve_response_code( $response );
         $body     = json_decode(wp_remote_retrieve_body( $response ));
         if($http_code == 200) {
-            return $body[0];
+            // Cashfree's payments endpoint returns every payment attempt for the order.
+            return $body;
         } else {
             throw new Exception($body[0]->payment_message);
         }
