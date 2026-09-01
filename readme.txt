@@ -3,8 +3,8 @@ Contributors: devcashfree
 Requires at least: 4.4
 Tested up to: 7.1
 Requires PHP: 5.6
-Stable tag: 4.8.0
-Version: 4.8.0
+Stable tag: 4.8.1
+Version: 4.8.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Tags: wordpress,woocommerce,payment,gateway,cashfree
@@ -49,6 +49,9 @@ In the search field type "Cashfree" and click Search Plugins. Once you’ve foun
 The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation).
 
 == Changelog ==
+
+= 4.8.1 =
+* Bug Fix: Resolved an issue where, for transactions with multiple payment attempts, the payment reference ID could be pulled from an earlier failed/dropped attempt instead of the actual successful one. The response object is now synced with the successful attempt across checkout and capture flows.
 
 = 4.8.0 =
 * Bug Fix: Resolved order status not updating when an order had multiple payment attempts, and updated compatibility with the latest WordPress and WooCommerce releases.

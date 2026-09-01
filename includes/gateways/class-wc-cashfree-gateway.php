@@ -193,6 +193,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 			$payment_status = isset( $response->payment_status ) ? $response->payment_status : null;
 			foreach ( $payment_attempts as $attempt ) {
 				if ( isset( $attempt->payment_status ) && $attempt->payment_status === 'SUCCESS' ) {
+					$response = $attempt;
 					$payment_status = 'SUCCESS';
 					break;
 				}
@@ -343,6 +344,7 @@ abstract class WC_Cashfree_Gateway extends WC_Payment_Gateway {
 		$paymentStatus = isset($response->payment_status) ? $response->payment_status : null;
 		foreach ($payment_attempts as $attempt) {
 			if (isset($attempt->payment_status) && $attempt->payment_status === 'SUCCESS') {
+				$response = $attempt;
 				$paymentStatus = 'SUCCESS';
 				break;
 			}
